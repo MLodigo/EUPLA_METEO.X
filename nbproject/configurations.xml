@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="62">
+  <logicalFolder name="root" displayName="root" projectFiles="true">
+    <logicalFolder name="HeaderFiles"
+                   displayName="Header Files"
+                   projectFiles="true">
+      <itemPath>ADC.h</itemPath>
+      <itemPath>App_Main.h</itemPath>
+      <itemPath>General.h</itemPath>
+      <itemPath>Gestor_Bateria.h</itemPath>
+      <itemPath>Gestor_EEPROM.h</itemPath>
+      <itemPath>Gestor_Sensores.h</itemPath>
+      <itemPath>PMP_LCD.h</itemPath>
+      <itemPath>Rele.h</itemPath>
+      <itemPath>SPI.h</itemPath>
+      <itemPath>SPI_EEPROM.h</itemPath>
+      <itemPath>Switches.h</itemPath>
+      <itemPath>Temporizacion.h</itemPath>
+      <itemPath>UART.h</itemPath>
+      <itemPath>leds.h</itemPath>
+      <itemPath>p24FJ128GA010.h</itemPath>
+      <itemPath>p24Fxxxx.h</itemPath>
+      <itemPath>../Menu_Operario.X/MenuOperario.h</itemPath>
+      <itemPath>../Menu_Operario.X/Menu.h</itemPath>
+      <itemPath>Reloj_RTCC.h</itemPath>
+    </logicalFolder>
+    <logicalFolder name="LibraryFiles"
+                   displayName="Library Files"
+                   projectFiles="true">
+    </logicalFolder>
+    <logicalFolder name="LinkerScript"
+                   displayName="Linker Files"
+                   projectFiles="true">
+      <itemPath>p24FJ128GA010.gld</itemPath>
+    </logicalFolder>
+    <logicalFolder name="ObjectFiles"
+                   displayName="Object Files"
+                   projectFiles="true">
+    </logicalFolder>
+    <logicalFolder name="SourceFiles"
+                   displayName="Source Files"
+                   projectFiles="true">
+      <itemPath>ADC.c</itemPath>
+      <itemPath>App_Main.c</itemPath>
+      <itemPath>Gestor_Bateria.c</itemPath>
+      <itemPath>Gestor_EEPROM.c</itemPath>
+      <itemPath>Gestor_Sensores.c</itemPath>
+      <itemPath>Main.c</itemPath>
+      <itemPath>PMP_LCD.c</itemPath>
+      <itemPath>SPI.c</itemPath>
+      <itemPath>SPI_EEPROM.c</itemPath>
+      <itemPath>Switches.c</itemPath>
+      <itemPath>Temporizacion.c</itemPath>
+      <itemPath>Traps.c</itemPath>
+      <itemPath>UART.c</itemPath>
+      <itemPath>../Menu_Operario.X/MenuOperario.c</itemPath>
+      <itemPath>../Menu_Operario.X/Menu.c</itemPath>
+      <itemPath>Reloj_RTCC.c</itemPath>
+    </logicalFolder>
+    <logicalFolder name="ExternalFiles"
+                   displayName="Important Files"
+                   projectFiles="false">
+      <itemPath>Makefile</itemPath>
+    </logicalFolder>
+  </logicalFolder>
+  <projectmakefile>Makefile</projectmakefile>
+  <confs>
+    <conf name="default" type="2">
+      <toolsSet>
+        <developmentServer>localhost</developmentServer>
+        <targetDevice>PIC24FJ128GA010</targetDevice>
+        <targetHeader></targetHeader>
+        <targetPluginBoard></targetPluginBoard>
+        <platformTool>ICD3PlatformTool</platformTool>
+        <languageToolchain>C30</languageToolchain>
+        <languageToolchainVersion>3_02</languageToolchainVersion>
+        <platform>3</platform>
+      </toolsSet>
+      <compileType>
+        <linkerTool>
+          <linkerLibItems>
+          </linkerLibItems>
+        </linkerTool>
+        <loading>
+          <useAlternateLoadableFile>false</useAlternateLoadableFile>
+          <alternateLoadableFile></alternateLoadableFile>
+        </loading>
+      </compileType>
+      <makeCustomizationType>
+        <makeCustomizationPreStepEnabled>false</makeCustomizationPreStepEnabled>
+        <makeCustomizationPreStep></makeCustomizationPreStep>
+        <makeCustomizationPostStepEnabled>false</makeCustomizationPostStepEnabled>
+        <makeCustomizationPostStep></makeCustomizationPostStep>
+        <makeCustomizationPutChecksumInUserID>false</makeCustomizationPutChecksumInUserID>
+        <makeCustomizationEnableLongLines>false</makeCustomizationEnableLongLines>
+        <makeCustomizationNormalizeHexFile>false</makeCustomizationNormalizeHexFile>
+      </makeCustomizationType>
+      <C30>
+      </C30>
+      <C30-AS>
+      </C30-AS>
+      <C30-LD>
+      </C30-LD>
+      <C30Global>
+      </C30Global>
+      <ICD3PlatformTool>
+        <property key="firmware.download.all" value="false"/>
+      </ICD3PlatformTool>
+    </conf>
+  </confs>
+</configurationDescriptor>

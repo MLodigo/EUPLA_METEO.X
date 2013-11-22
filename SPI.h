@@ -1,0 +1,51 @@
+#ifndef SPI_H
+    #define SPI_H
+
+//////////////////////////////////////////////////////////////    
+//INCLUDES
+//////////////////////////////////////////////////////////////
+	#include "General.h"
+	#include <p24FJ128GA010.h>
+	
+//////////////////////////////////////////////////////////////    
+//DEFINICIONES  Se utilizará el módulo SPI1
+//////////////////////////////////////////////////////////////
+
+	#define SPIBUF  SPI2BUF
+    #define SPISTAT SPI2STAT
+    #define SPIBUFbits  SPI2BUFbits
+    #define SPISTATbits SPI2STATbits
+    #define SPIINTEN IEC2 
+    #define SPIINTFLG IFS2
+    #define SPIINTENbits IEC2bits
+    #define SPIINTFLGbits IFS2bits
+    #define SPIIF SPI2IF
+    #define SPIIE SPI2IE
+    #define SPICON1 SPI2CON1
+    #define SPICONbits SPI2CON1bits
+    #define SPICON2 SPI2CON2
+    #define SPICON2bits SPI2CON2bits
+ 
+//////////////////////////////////////////////////////////////    
+//MACROS
+//////////////////////////////////////////////////////////////
+#define  mSPI_LeeSPIBUF() SPIBUF
+
+//////////////////////////////////////////////////////////////    
+//CONSTANTES
+//////////////////////////////////////////////////////////////
+/*#define SPI_STS_WRITE_COLLISION    1
+#define SPI_STS_TRANSMIT_NOT_OVER  2  
+#define SPI_STS_DATA_NOT_READY     3  */
+
+//////////////////////////////////////////////////////////////    
+//METODOS PUBLICOS   Definición de funciones o prototipos
+//////////////////////////////////////////////////////////////
+void SPI_Inicializacion();
+BOOL SPI_EscribeDato(BYTE Data);
+BOOL SPI_TransmisionFinalizada();
+
+
+#endif
+
+
