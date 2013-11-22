@@ -10,8 +10,9 @@
 //********************************************************************************************************************
 //********************************************************************************************************************
 
-
-//Función que habilita el módulo SPI del micro, así como las líneas que conectan con la memoria EEPROM
+//********************************************************************************************************************
+//Función que configura el módulo SPI del micro, así como las líneas que lo conectan con la memoria EEPROM externa.
+//********************************************************************************************************************
 BOOL Inicializacion_Modulo_EEPROM()
 {
     //Configuración módulo SPI del micro para comunicar con la EEPROM
@@ -24,8 +25,9 @@ BOOL Inicializacion_Modulo_EEPROM()
     return TRUE;
 }
 
-
-//Función que realiza el envío del contenido de la memoria a través de la UART
+//********************************************************************************************************************
+//Función que realiza el envío del contenido de la memoria a través de la UART para funciones de depuración.
+//********************************************************************************************************************
 BOOL Envio_Memoria_UART()
 {
     WORD cntDireccion=0;
@@ -34,22 +36,24 @@ BOOL Envio_Memoria_UART()
     UART2_Configura_Abre();
     // TODO Ajustar la dirección de inicio y final en la lectura de la memoria para envio por UART
     //Lectura de cada uno de los datos de la memoria y envío por la UART
-    for(cntDireccion=0x300; cntDireccion<0x500; cntDireccion++)
+    for(cntDireccion=0; cntDireccion<0x500; cntDireccion++)
     {
         UART2_Envia_Byte(EEPROM_ReadByte(cntDireccion));
+        //TODO: Enviar en formato "0x300 -- FF" y un CRLF así se visualizará más claramente.
     }
 
     return TRUE;
 }
 
+//********************************************************************************************************************
 //Función que realiza una lectura completa de la memoria EEPROM en RAM para operaciónes de depuración y desarrollo.
+//********************************************************************************************************************
 BOOL Lectura_Completa_EEPROM()
 {
     WORD cntDireccion=0;
     BYTE Memoria[0x400];
 
-    //Lectura Memoria
-    //Lectura completa de la memoria (3 segundos)
+    //Lectura Memoria. Lectura completa de la memoria (3 segundos).
     for(cntDireccion=0; cntDireccion<0x400; cntDireccion++)
     {
         Memoria[cntDireccion] = EEPROM_ReadByte(cntDireccion);
@@ -58,7 +62,9 @@ BOOL Lectura_Completa_EEPROM()
     return TRUE;
 }
 
-//Función que inicializa la memoria EEPROM poniendo todas las posiciónes a 0xFF
+//********************************************************************************************************************
+//Función que inicializa la memoria EEPROM poniendo todas las posiciónes a 0xFF.
+//********************************************************************************************************************
 BOOL Borrado_Completo_EEPROM()
 {
     WORD cntDireccion=0;
@@ -72,8 +78,14 @@ BOOL Borrado_Completo_EEPROM()
     return TRUE;
 }
 
+//********************************************************************************************************************
 //Función que inicializa la memoria EEPROM a parámetros de fábrica.
-BOOL Aplicar_Configuracioin_Fabrica()
+// -Se realiza un borrado completo de la memoria.
+// -Muestreo de sensores:           1 minuto.
+// -Envío de mediciones vía modem:  3 minutos.
+// -Estado del sistema:             Modo Normal.
+//********************************************************************************************************************
+BOOL Aplicar_Configuracion_Fabrica()
 {
     WORD_VAL Dato;
     // TODO Habilitar borrado
@@ -94,6 +106,3 @@ BOOL Aplicar_Configuracioin_Fabrica()
 
     return TRUE;
 }
-
-
-

@@ -1,7 +1,7 @@
 #ifndef GESTOREEPROM_H
     #define GESTOREEPROM_H
 
- //////////////////////////////////////////////////////////////    
+//////////////////////////////////////////////////////////////    
 //INCLUDES
 //////////////////////////////////////////////////////////////
 #include "General.h"
@@ -37,7 +37,7 @@ BOOL Inicializacion_Modulo_EEPROM();
 BOOL Envio_Memoria_UART();
 BOOL Lectura_Completa_EEPROM();
 BOOL Borrado_Completo_EEPROM();
-BOOL Aplicar_Configuracioin_Fabrica();
+BOOL Aplicar_Configuracion_Fabrica();
 
 #endif
 

@@ -31,7 +31,9 @@ void Procesa_Evento_UART(void);
 void Procesa_Evento_Sensores_Bateria(void);
 void Ejecuta_Peticion_Recibida(char * Comando);
 
-//Función que muestra en el display el mensaje inicial.
+//********************************************************************************************************************
+//Función que muestra en el display el mensaje inicial al arrancar el sistema.
+//********************************************************************************************************************
 void Mensaje_Bienvenida()
 {
     LCD_Clear();
@@ -41,20 +43,27 @@ void Mensaje_Bienvenida()
     LCD_Clear();
 }
 
-//Función que se encarga de gestionar el movimiento del usuario a través del menú del sistema
+//********************************************************************************************************************
+//Función que se encarga de gestionar el movimiento del usuario a través del menú operario.
+//********************************************************************************************************************
 void Procesa_Evento_Menu()
 {
     MenuOperario();
 }
 
+//********************************************************************************************************************
 //Función que se encarga de poner al sistema en modo de bajo consumo para fomentar la recuperación de la batería.
+//********************************************************************************************************************
 void Procesa_Modo_Recuperacion()
 {
     Inicializacion_Modulo_EEPROM();
     Activar_Modo_Recuperacion();
 }
 
-//Función que gestiona el procesamiento de un posible reset por watchdog (fallo en el programa) o por software (menú operario) o por salida del modo Idle.
+//********************************************************************************************************************
+//Función que gestiona el procesamiento de un posible reset por watchdog (fallo en el programa) o 
+//por software (excepción y trap).
+//********************************************************************************************************************
 void Procesa_Reset_No_Controlado()
 {
     LCD_Clear();
@@ -63,7 +72,10 @@ void Procesa_Reset_No_Controlado()
     Retardo(2000);
 }
 
-//Función que atiende a los eventos llegados a través del puerto de comunicaciónes con el modem.
+//********************************************************************************************************************
+//Función que atiende a los eventos llegados a través del puerto de comunicaciónes donde 
+//se encuentra instalado el modem GSM/GPRS.
+//********************************************************************************************************************
 void Procesa_Evento_UART()
 {
    BYTE DatosRecibidos_UART2[100];
@@ -78,7 +90,8 @@ void Procesa_Evento_UART()
    LCD_WriteLinea(LCD_LINEA1, (unsigned char*)"MODEM HABILITADO");
    LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Recibiendo...   ");
 
-   //Esperamos a recibir todos los datos.. Si pasan 2 segundos sin recibir nada, salimos..
+   //Esperamos a recibir todos los datos.. Si pasan 2 segundos sin recibir nada,
+   //se entiende que la comunicación finalizó y salimos..
    Reset_Contador_MSeg();
    while(Lectura_Contador_MSeg()<2000)
    {
@@ -98,7 +111,9 @@ void Procesa_Evento_UART()
    Retardo(1000);
 }
 
+//********************************************************************************************************************
 //Función que realiza las acciones o comandos llegados vía modem.
+//********************************************************************************************************************
 void Ejecuta_Peticion_Recibida(char * Comando)
 {
     LCD_Clear();
@@ -107,7 +122,13 @@ void Ejecuta_Peticion_Recibida(char * Comando)
     Retardo(2000);
 }
 
+//********************************************************************************************************************
 //Función que gestiona las medidas sobre los sensores y el control sobre el nivel de la batería.
+//Se comprueba si el nivel de la batería está crítico, para pasar a modo de recuperación.
+//En caso de no estar en modo recuperación, se actualizan los contadores de número de despiertes
+//para determinar si ha llegado el momento de realizar un muestreo de los sensores o incluso un
+//envío de datos vía modem.
+//********************************************************************************************************************
 void Procesa_Evento_Sensores_Bateria()
 {
     BYTE Reintentos = 0;
@@ -174,7 +195,9 @@ void Procesa_Evento_Sensores_Bateria()
 //********************************************************************************************************************
 //********************************************************************************************************************
 
+//********************************************************************************************************************
 //Función que realiza la incialización de los diferentes módulos utilizados tras un Reset.
+//********************************************************************************************************************
 void Inicializa_Sistema(void)
 {
     //Inicializaciones de periféricos
@@ -217,55 +240,69 @@ void Inicializa_Sistema(void)
     _CMPMD = TRUE;      //Módulo Comparator
 }
 
-//Función que sumerge al sistema en modo de bajo consumo (Power Savings Mode Sleep)
+//********************************************************************************************************************
+//Función que sumerge al sistema en modo de bajo consumo (Power Savings Mode Sleep).
+//********************************************************************************************************************
 void Modo_Sleep(void)
 {
    //Leds OFF indicando que entramos en Sleep
    LEDs_OFF;
    //Limpiamos el LCD
    LCD_Clear();
-   //Activamos el watchdog para despertar del Sleep, luego lo deshabilitamos
+   //Se configura la UART para forzar el despierte del micro al recibir datos remotos.
    UART2_Configura_Modo_Sleep();
+   //Activamos el watchdog para despertar del Sleep, luego lo deshabilitamos
    _SWDTEN = 1;
    Sleep();
    _SWDTEN = 0;
+   //Configuración de UART para que no fuerce despierte al recibir datos (Micro ya despierto).
    U2MODEbits.WAKE = 0;
 }
 
+//********************************************************************************************************************
 //Función que se encarga de procesar las diferentes tareas a realizar tras cada despierte del micro.
+//Se determina cual fué la causa del despierte y se realizan las acciones oportunas asociadas.
+//********************************************************************************************************************
 void Procesa_Evento_Despierte(void)
 {
-    //DESPIERTE POR CONEXIÓN DE ALIMENTACIÓN//////////////////////////////////////////////////////////////////////////////////
+   //DESPIERTE POR CONEXIÓN DE ALIMENTACIÓN//////////////////////////////////////////////////////////////////////////////////
+   //Arranque del sistema y mostrado de la pantalla de inicio.
    if(DESP_ALIMENTACION)
    {
        LED3_ON;
        Mensaje_Bienvenida();
    }
    //DESPIERTE POR WATCHDOG DURANTE SLEEP////////////////////////////////////////////////////////////////////////////////////
+   //En funcionamineto normal, el micro se despertará por indicación del timer Watchdog, y se realizarán, cuando toque, el
+   //muestreo de los sensores y el envío de datos vía modem.
    else if(DESP_WATCHDOG_SLEEP)
    {
        LED4_ON;
        Procesa_Evento_Sensores_Bateria();
    }
    //DESPIERTE POR PULSADOR EXTERNO -> MENÚ OPERARIO//////////////////////////////////////////////////////////////////////////
+   //Al pulsar en el bóton de reset externo, se accede al menú operario del sistema.
    else if(DESP_USUARIO)
    {
        LED5_ON;
        Procesa_Evento_Menu();
    }
-   //RESET POR BATERIA BAJA (Brown Out)
+   //RESET POR BATERIA BAJA (Brown Out)////////////////////////////////////////////////////////////////////////////////////////
+   //En caso de que el micro determine que la tensión de alimentación está cayendo a niveles críticos, se ubicará el sistema en
+   //modo de recuperación de la batería, ahorrando consumo al máximo y modificando la funcionalidad de medidas y envíos temporalmente.
    else if (RESET_LOW_BAT)
    {
        LED7_ON;
        Procesa_Modo_Recuperacion();
    }
-   //DESPIERTE POR RESET SOFTWARE DEL MENÚ OPERARIO (Opción "Reset Dispositivo") Ó POR WATCHDOG SIN SLEEP Ó POR IDLE//////////
+   //DESPIERTE POR RESET SOFTWARE (Fallo de programa) Ó POR WATCHDOG SIN SLEEP Ó POR IDLE//////////////////////////////////////
    else if ((RESET_SOFTWARE) || (RESET_EXCEPCION))
    {
        LED8_ON;
        Procesa_Reset_No_Controlado();
    }
-   //DESPIERTE POR UART por descarte tras chequear todos los posibles tipos de despierte
+   //DESPIERTE POR UART por descarte tras chequear todos los posibles tipos de despierte////////////////////////////////////////
+   //Este caso se produce al despertarse el micro tras recibir datos por la UART mientras está en modo Sleep.
    else
    {
        LED6_ON;
@@ -275,14 +312,3 @@ void Procesa_Evento_Despierte(void)
    //Limpieza de todas banderas del RCON: POR=0, BOR=0, SLEEP=0, WDTO=0, SWR=0, EXTR=0
    RCON=0;
 }
-
-
-
-
-
-
-
-
-
-
-

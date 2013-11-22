@@ -5,7 +5,7 @@
     maestro, está conectado al registro de recepción del dispositivo esclavo, y a su vez, el registro de recepción del
     maestro, está conectado al registro de transmisión del esclavo.
     
-        Cada vez que el maestro realiza una transmisión, entra en el registro de transmisión un dato, que no es significativo,
+        Cada vez que el maestro realiza una transmisión, entra en el registro de recepción un dato, que no es significativo,
     pero que ocupa el registro de recepción. Por tanto tras cada transmisión es necesario hacer una lectura del registro de
     recepción.
     

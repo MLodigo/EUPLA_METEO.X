@@ -12,7 +12,9 @@
 //********************************************************************************************************************
 //********************************************************************************************************************
 
-//Función que comprueba si el sistema está actualmente en modo de recuperación
+//********************************************************************************************************************
+//Función que comprueba si el sistema está actualmente en modo de recuperación de la batería.
+//********************************************************************************************************************
 BOOL Si_En_Modo_Recuperacion()
 {
     ESTADO_SISTEMA StatusSistema = INDETERMINADO;
@@ -44,7 +46,9 @@ BOOL Si_En_Modo_Recuperacion()
 
 }
 
-//Función que comprueba el nivel de la batería
+//********************************************************************************************************************
+//Función que comprueba el nivel de la batería leyendo el sensor asociado mediante el conversor ADC.
+//********************************************************************************************************************
 NIVEL_BATERIA Comprobacion_Estado_Bateria()
 {
     SENSORES Muestra;
@@ -86,13 +90,15 @@ NIVEL_BATERIA Comprobacion_Estado_Bateria()
     } 
 }
 
-//Función que pone al sistema en modo de recuperación de la batería
+//********************************************************************************************************************
+//Función que pone al sistema en modo de recuperación de la batería.
+//Acciones: Desconexión del modem.
+//********************************************************************************************************************
 BOOL Activar_Modo_Recuperacion()
 {
     BYTE Reintentos = 0;
 
-    MODEM_OFF;
-
+    //Actualización en memoria del nuevo estado del sistema: Recuperación de batería.
     do
     {
         EEPROM_WriteByte(RECUPERACION, DIR_ESTADO_SISTEMA);
@@ -107,17 +113,21 @@ BOOL Activar_Modo_Recuperacion()
     }
     else
     {
+        //Apagado de la alimentación del modem
+        MODEM_OFF;
         return TRUE;
     }
 }
 
-//Función que saca al sistema del modo de recuperación de la bateria
+//********************************************************************************************************************
+//Función que pne al sistema del modo normal de funcionamiento.
+//Acciones: Conexión del modem.
+//********************************************************************************************************************
 BOOL Desactivar_Modo_Recuperacion()
 {
     BYTE Reintentos = 0;
 
-    MODEM_ON;
-
+    //Actualización en memoria del nuevo estado del sistema: Modo Normal.
     do
     {
         EEPROM_WriteByte(NORMAL, DIR_ESTADO_SISTEMA);
@@ -132,8 +142,8 @@ BOOL Desactivar_Modo_Recuperacion()
     }
     else
     {
+        //Conexión de la alimentación del modem
+        MODEM_ON;
         return TRUE;
     }
 }
-
-

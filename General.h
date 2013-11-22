@@ -145,7 +145,3 @@ typedef struct
 }SENSORES;
 
 #endif
-
-
-
-

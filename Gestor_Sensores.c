@@ -30,8 +30,11 @@ SENSORES Tomar_Muestra_Sensores();
 WORD Read_CNT_Muestras_Tomadas();
 WORD Read_Muestras_MAX_Envio_Modem();
 
-
+//********************************************************************************************************************
 //Función que obtiene la siguiente dirección sobre la que se escribirá la siguiente muestra que se tome.
+//Se calcula en base al número de muestras tomadas, el tamaño de cada muestra y la direccion de comienzo de
+//la zona de almacenamiento de muestras en la memoria EEPROM.
+//********************************************************************************************************************
 WORD Siguiente_Direccion_Libre_EEPROM()
 {
     WORD CNT_Muestras_Tomadas = 0;
@@ -46,17 +49,21 @@ WORD Siguiente_Direccion_Libre_EEPROM()
         CNT_Muestras_Tomadas = 0;
     }
 
-
+    //Cálculo de la siguiente dirección libre
     Direccion = (CNT_Muestras_Tomadas *8) + DIR_BASE_MEDIDAS;
 
+    //Resultado
     return Direccion;
 }
 
-//Función que obtiene el valor actual del contador de despiertes llevados a cabo por el micro
+//********************************************************************************************************************
+//Función que obtiene el valor actual del contador de despiertes llevados a cabo por el micro.
+//********************************************************************************************************************
 WORD Read_CNT_Despiertes()
 {
     WORD_VAL Resultado;
 
+    //Lectura en memoria del contador
     Resultado.byte.LB = EEPROM_ReadByte(DIR_CNT_DESPIERTES);
     Resultado.byte.HB = EEPROM_ReadByte(DIR_CNT_DESPIERTES+1);
 
@@ -69,11 +76,15 @@ WORD Read_CNT_Despiertes()
     return Resultado.Val;
 }
 
-//Función que obtiene el valor de despiertes que debe realizar el micro, antes de efectuar una toma de muestra y almacenarla en memoria.
+//********************************************************************************************************************
+//Función que obtiene el número de despiertes que debe realizar el micro, antes de efectuar una toma de muestra y
+//almacenarla en memoria.
+//********************************************************************************************************************
 WORD Read_Despiertes_MAX()
 {
     WORD_VAL Resultado;
 
+    //Lectura en memoria del dato.
     Resultado.byte.LB = EEPROM_ReadByte(DIR_DESPIERTES_POR_MEDIDA);
     Resultado.byte.HB = EEPROM_ReadByte(DIR_DESPIERTES_POR_MEDIDA+1);
 
@@ -86,7 +97,9 @@ WORD Read_Despiertes_MAX()
     return Resultado.Val;
 }
 
+//********************************************************************************************************************
 //Función que se apoya en el conversor A/D para realizar un barrido a los sensores y obtener las medidas de cada uno.
+//********************************************************************************************************************
 SENSORES Tomar_Muestra_Sensores()
 {
     SENSORES Muestra;
@@ -112,11 +125,14 @@ SENSORES Tomar_Muestra_Sensores()
     return Muestra;
 }
 
+//********************************************************************************************************************
 //Función que obtiene el valor actual del contador de muestras tomadas.
+//********************************************************************************************************************
 WORD Read_CNT_Muestras_Tomadas()
 {
     WORD_VAL Resultado;
 
+    //Lectura en memoria del dato
     Resultado.byte.LB = EEPROM_ReadByte(DIR_CNT_MUESTRAS_TOMADAS);
     Resultado.byte.HB = EEPROM_ReadByte(DIR_CNT_MUESTRAS_TOMADAS+1);
 
@@ -130,11 +146,14 @@ WORD Read_CNT_Muestras_Tomadas()
 
 }
 
+//********************************************************************************************************************
 //Función que obtiene el valor de muestras máximas a acumular en memoria, antes de enviar toda la información vía modem.
+//********************************************************************************************************************
 WORD Read_Muestras_MAX_Envio_Modem()
 {
     WORD_VAL Resultado;
 
+    //Lectura en memoria del dato
     Resultado.byte.LB = EEPROM_ReadByte(DIR_MUESTRAS_POR_ENVIO_MODEM);
     Resultado.byte.HB = EEPROM_ReadByte(DIR_MUESTRAS_POR_ENVIO_MODEM+1);
 
@@ -154,8 +173,10 @@ WORD Read_Muestras_MAX_Envio_Modem()
 //********************************************************************************************************************
 //********************************************************************************************************************
 
+//********************************************************************************************************************
 //Función que informa si ha llegado o no, el momento de hacer un barrido a los sensores con el objetivo de almacenar
-//la información recogida en memoria EEPROM
+//la información recogida en memoria EEPROM.
+//********************************************************************************************************************
 RESPUESTA Si_Realizar_Medidas_Sensores()
 {
     WORD Cnt_Despiertes = 0xFFFF;
@@ -192,8 +213,10 @@ RESPUESTA Si_Realizar_Medidas_Sensores()
     }
 }
 
+//********************************************************************************************************************
 //Función que informa se ha llegado o no, el momento de realizar un envio vía modem al centro servidor, de todos las medidas
-//de sensores realizadas y almacenadas en memoria EEPROM
+//de sensores realizadas y almacenadas en memoria EEPROM.
+//********************************************************************************************************************
 RESPUESTA Si_Realizar_Envio_Muestras_Modem()
 {
     WORD Cnt_Muestras = 0xFFFF;
@@ -230,7 +253,9 @@ RESPUESTA Si_Realizar_Envio_Muestras_Modem()
     }
 }
 
-//Función que almacena las medidas de los sensores (Muestra) en la memoria EEPROM
+//********************************************************************************************************************
+//Función que inicia un barrido de los sensores, y almacena el resultado (Muestra) en la memoria EEPROM.
+//********************************************************************************************************************
 BOOL Lectura_Sensores_Guarda_Muestra_EEPROM()
 {
     SENSORES Muestra;
@@ -246,7 +271,9 @@ BOOL Lectura_Sensores_Guarda_Muestra_EEPROM()
     //Obtenemos la dirección a escribir
     Direccion = Siguiente_Direccion_Libre_EEPROM();
 
-    //Escritura de la TEMPERATURA
+    //TODO: Guardado del TimeStamp
+    
+    //Escritura de la TEMPERATURA///////////////////////
     Reintentos = 0;
     do
     {
@@ -259,7 +286,7 @@ BOOL Lectura_Sensores_Guarda_Muestra_EEPROM()
     //Si no se realizó correctamente, salimos.
     if(Reintentos==3){return FALSE;}
 
-    //Escritura de la PLUVIOMETRIA
+    //Escritura de la PLUVIOMETRIA/////////////////////
     Reintentos = 0;
     do
     {
@@ -272,7 +299,7 @@ BOOL Lectura_Sensores_Guarda_Muestra_EEPROM()
     //Si no se realizó correctamente, salimos.
     if(Reintentos==3){return FALSE;}
 
-    //Escritura de la VELOCIDAD DEL AIRE
+    //Escritura de la VELOCIDAD DEL AIRE///////////////
     Reintentos = 0;
     do
     {
@@ -285,7 +312,7 @@ BOOL Lectura_Sensores_Guarda_Muestra_EEPROM()
     //Si no se realizó correctamente, salimos.
     if(Reintentos==3){return FALSE;}
 
-    //Escritura del NIVEL DEL LA BATERIA
+    //Escritura del NIVEL DEL LA BATERIA///////////////
     Reintentos = 0;
     do
     {
@@ -301,7 +328,9 @@ BOOL Lectura_Sensores_Guarda_Muestra_EEPROM()
     return TRUE;
 }
 
+//********************************************************************************************************************
 //Función que realiza el envío de toda la información almacenada en memoria, vía modem al centro servidor.
+//********************************************************************************************************************
 BOOL Enviar_Muestras_Modem()
 {
     WORD cntDireccion=0;
@@ -320,8 +349,8 @@ BOOL Enviar_Muestras_Modem()
 
     //////////////////////////////////////////////////////////////
 //    rtccFechaHora FechaHoraReloj = Lectura_FechaHora_Reloj();
-//    unsigned char FechaFormateada[9];
-//    unsigned char HoraFormateada[9];
+//    BYTE FechaFormateada[9];
+//    BYTE HoraFormateada[9];
 //    FechaFormateada[0] = (BYTE)((((FechaHoraReloj.f.DiaMes) & 0xF0)>>4)+ 0x30);
 //    FechaFormateada[1] = (BYTE)(((FechaHoraReloj.f.DiaMes) & 0x0F)+ 0x30);
 //    FechaFormateada[2] = '/';
@@ -348,14 +377,18 @@ BOOL Enviar_Muestras_Modem()
     return TRUE;
 }
 
-//Función que incrementa en uno, el contador que recoge las veces que el micro se ha despertado.
+//********************************************************************************************************************
+//Función que incrementa en uno, el contador que recoge las veces que el micro se ha despertado, almacenándolo en EEPROM.
+//********************************************************************************************************************
 BOOL Inc_CNT_Despiertes()
 {
     WORD_VAL Resultado;
     BYTE Reintentos = 0;
 
+    //Lectura del valor actual e incremento.
     Resultado.Val = (WORD)(Read_CNT_Despiertes()+1);
 
+    //Actualización del valor en memoria
     do
     {
         EEPROM_WriteByte(Resultado.byte.LB, DIR_CNT_DESPIERTES);
@@ -375,14 +408,18 @@ BOOL Inc_CNT_Despiertes()
     }
 }
 
-//Función que incrementa en uno, el contador que recoge el total de muestras tomadas.
+//********************************************************************************************************************
+//Función que incrementa en uno, el contador que recoge el total de muestras tomadas, almacenándolo en EEPROM.
+//********************************************************************************************************************
 BOOL Inc_CNT_Muestras_Tomadas()
 {
     WORD_VAL Resultado;
     BYTE Reintentos = 0;
 
+    //Lectura del valor actual e incremento de una unidad.
     Resultado.Val = (WORD)(Read_CNT_Muestras_Tomadas()+1);
 
+    //Actualilzación del valor en memoria.
     do
     {
         EEPROM_WriteByte(Resultado.byte.LB, DIR_CNT_MUESTRAS_TOMADAS);
@@ -402,8 +439,9 @@ BOOL Inc_CNT_Muestras_Tomadas()
     }
 }
 
-
+//********************************************************************************************************************
 //Función que pone a cero el contador de veces que el micro se ha despertado.
+//********************************************************************************************************************
 BOOL Reset_CNT_Despiertes()
 {
     WORD_VAL Resultado;
@@ -411,6 +449,7 @@ BOOL Reset_CNT_Despiertes()
 
     Resultado.Val = 0;
 
+    //Escritura del valor a 0
     do
     {
         EEPROM_WriteByte(Resultado.byte.LB, DIR_CNT_DESPIERTES);
@@ -430,7 +469,9 @@ BOOL Reset_CNT_Despiertes()
     }
 }
 
+//********************************************************************************************************************
 //Función que pone a cero el contador de muestras tomadas.
+//********************************************************************************************************************
 BOOL Reset_CNT_Muestras_Tomadas()
 {
     WORD_VAL Resultado;
@@ -438,6 +479,7 @@ BOOL Reset_CNT_Muestras_Tomadas()
 
     Resultado.Val = 0;
 
+    //Escritura del valor a 0
     do
     {
         EEPROM_WriteByte(Resultado.byte.LB, DIR_CNT_MUESTRAS_TOMADAS);
@@ -456,10 +498,3 @@ BOOL Reset_CNT_Muestras_Tomadas()
         return TRUE;
     }
 }
-
-
-
-
-
-
-
