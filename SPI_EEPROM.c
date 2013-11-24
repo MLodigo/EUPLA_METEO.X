@@ -182,6 +182,3 @@ union _EEPROMStatus_ EEPROM_ReadStatus(){
 
     return (union _EEPROMStatus_)Temp;
 }
-
-
-

@@ -1,7 +1,7 @@
 #ifndef PMP_LCD_H
     #define PMP_LCD_H
 
- //////////////////////////////////////////////////////////////    
+//////////////////////////////////////////////////////////////    
 //INCLUDES
 //////////////////////////////////////////////////////////////
 #include "General.h"
@@ -16,30 +16,30 @@
 //Número de líneas del display
 #define LCD_DISPLAY_LINE	2		
 
-#define LCD_LINEA1			0		//Primera línea
-#define LCD_LINEA2			1		//Segunda línea
+#define LCD_LINEA1		0		//Primera línea
+#define LCD_LINEA2		1		//Segunda línea
 
 //Diferencia entre escribir una instrucción o un dato en el display
-#define LCD_I				0		//Intrucción
-#define LCD_D				1		//Dato
+#define LCD_I			0		//Instrucción
+#define LCD_D			1		//Dato
 
-#define LCD_Busy			0x80	//LCD ocupado
-#define LCD_Free			0		//LCD libre 
+#define LCD_Busy		0x80            //LCD ocupado
+#define LCD_Free		0		//LCD libre 
 
 //COMANDOS DISPLAY 
 
 //Borra módulo DDRAM(Pantalla). Cursor en posición 0. Bit I/D en Incremento (Automático de direcciones)
-#define LCD_CLEAR_DISPLAY				0x01	
+#define LCD_CLEAR_DISPLAY			0x01	
 //Cursor al inicio (Direccion 0). No se modifica DDRAM. Registro contador direcciones (AC) puesto a 0. 
-#define LCD_RETURN_HOME					0x02	
+#define LCD_RETURN_HOME				0x02	
 //Movimiento cursor Incremental y la pantalla no se desplaza (No shift)
-#define LCD_CURSOR_INC_NS				0x06	
+#define LCD_CURSOR_INC_NS			0x06	
 //Movimiento cursor Decremental y la pantalla no se desplaza (No shift)
-#define LCD_CURSOR_DEC_NS				0x04	
+#define LCD_CURSOR_DEC_NS			0x04	
 //Movimiento cursor Incremental y la pantalla se desplaza (Shift)
-#define LCD_CURSOR_INC_S				0x07	
+#define LCD_CURSOR_INC_S			0x07	
 //Movimiento cursor Decremental y la pantalla se desplaza (Shift)
-#define LCD_CURSOR_DEC_S				0x05	
+#define LCD_CURSOR_DEC_S			0x05	
 //Display ON, Cursor ON, Parpadeo del cursor OFF
 #define LCD_DIS_ON_CUR_ON_PAR_OFF		0x0e	
 //Display ON, Cursor ON, Parpadeo del cursor ON
@@ -53,11 +53,11 @@
 //Desplazamiento del cursor activado y a la derecha
 #define LCD_CURSOR_SHIFT_RIGHT			0x14	
 //Desplazamiento del cursor deshabilitado
-#define LCD_CURSOR_NO_SHIFT				0x18	
+#define LCD_CURSOR_NO_SHIFT			0x18	
 //Longitud de datos de 4-bit, LCD 1 Línea, Caracteres 5x7
-#define LCD_DATOS_4_BITS				0x20	
+#define LCD_DATOS_4_BITS			0x20	
 //Longitud de datos de 8-bit, LCD 2 Líneas, Caracteres 5x10
-#define LCD_DATOS_8_BITS				0x3C	
+#define LCD_DATOS_8_BITS			0x3C	
 //Direccion de CGRAM de 4 bits
 #define LCD_CGRAM(_cgramAddr)	(((_cgramAddr)&0x0f)|0x40)		
 //Direccion de DDRAM Linea 1 de 7 bits

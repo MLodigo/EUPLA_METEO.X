@@ -35,7 +35,9 @@ unsigned char Cnt_SW6 = 0;
 //********************************************************************************************************************    
 //********************************************************************************************************************    
 
-//Función que incializa el estado de los switches a reposo
+//********************************************************************************************************************
+//Función que incializa el estado de los switches a reposo.
+//********************************************************************************************************************
 void Inicializa_Switches(void)
 {
     //Inicialmente los pulsadores estan en reposo.
@@ -57,6 +59,7 @@ void Inicializa_Switches(void)
     SWITCH_6_TRIS = 1;
 }
 
+//********************************************************************************************************************
 //Función que consulta el estado actual de un switch (0-> Resposo 1-> Activado)
 //Distribución:
 //   Bit 0 -> Switch 3
@@ -64,16 +67,19 @@ void Inicializa_Switches(void)
 //   Bit 2 -> Switch 5
 //   Bit 3 -> Switch 6
 //
-//Para consultar el estado de un switch, rotamos hasta la posicón del bit 0 el switch en cuestión, y luego hacemos una máscara con 0x01 
+//Para consultar el estado de un switch, rotamos hasta la posicón del bit 0 el switch en cuestión, y luego hacemos una máscara con 0x01 .
+//********************************************************************************************************************
 BOOL Switch_ON(ID_SWITCHES idSwitch)
 {
     return (BOOL)((EstadoSwithes.Val >> idSwitch) & (0x01));
 }
 
+//********************************************************************************************************************
 //Función que realiza una lectura de las líneas del micro donde se encuentran conectados los switches, y guarda
 //el estado de cada uno de ellos en la variable miembro EstadoSwitches.
 //Se establece una técnica de histéresis, de manera que es necesario alcanzar un nivel (DEBOUCE_MAX) por encima
 //o por debajo del valor 128 para determinar que un pulsador está activado o desactivado.
+//********************************************************************************************************************
 void Actualiza_Estado_Switches(void)
 {
     //Comprobamos el estado del Pulsador SW3
@@ -83,7 +89,7 @@ void Actualiza_Estado_Switches(void)
         if(Cnt_SW3 > (128 + DEBOUCE_MAX))
         {
             Cnt_SW3 = (128 + DEBOUCE_MAX); //Lo mantenemos en el límite superior sin superarlo
-            EstadoSwithes.bits.SW3 = 1;     //SW Pulsado
+            EstadoSwithes.bits.SW3 = 1;    //SW Pulsado
         }
     }
     else
@@ -92,7 +98,7 @@ void Actualiza_Estado_Switches(void)
         if(Cnt_SW3 < (128 - DEBOUCE_MAX))
         {
             Cnt_SW3 = (128 - DEBOUCE_MAX); //Lo mantenemos en el límite inferior sin superarlo
-            EstadoSwithes.bits.SW3 = 0;     //SW Reposo
+            EstadoSwithes.bits.SW3 = 0;    //SW Reposo
         }
     }
     
@@ -103,7 +109,7 @@ void Actualiza_Estado_Switches(void)
         if(Cnt_SW4 > (128 + DEBOUCE_MAX))
         {
             Cnt_SW4 = (128 + DEBOUCE_MAX); //Lo mantenemos en el límite superior sin superarlo
-            EstadoSwithes.bits.SW4 = 1;     //SW Pulsado
+            EstadoSwithes.bits.SW4 = 1;    //SW Pulsado
         }
     }
     else
@@ -112,7 +118,7 @@ void Actualiza_Estado_Switches(void)
         if(Cnt_SW4 < (128 - DEBOUCE_MAX))
         {
             Cnt_SW4 = (128 - DEBOUCE_MAX); //Lo mantenemos en el límite inferior sin superarlo
-            EstadoSwithes.bits.SW4 = 0;     //SW Reposo
+            EstadoSwithes.bits.SW4 = 0;    //SW Reposo
         }
     }
     
@@ -123,7 +129,7 @@ void Actualiza_Estado_Switches(void)
         if(Cnt_SW5 > (128 + DEBOUCE_MAX))
         {
             Cnt_SW5 = (128 + DEBOUCE_MAX); //Lo mantenemos en el límite superior sin superarlo
-            EstadoSwithes.bits.SW5 = 1;     //SW Pulsado
+            EstadoSwithes.bits.SW5 = 1;    //SW Pulsado
         }
     }
     else
@@ -132,7 +138,7 @@ void Actualiza_Estado_Switches(void)
         if(Cnt_SW5 < (128 - DEBOUCE_MAX))
         {
             Cnt_SW5 = (128 - DEBOUCE_MAX); //Lo mantenemos en el límite inferior sin superarlo
-            EstadoSwithes.bits.SW5 = 0;     //SW Reposo
+            EstadoSwithes.bits.SW5 = 0;    //SW Reposo
         }
     }
     
@@ -143,7 +149,7 @@ void Actualiza_Estado_Switches(void)
         if(Cnt_SW6 > (128 + DEBOUCE_MAX))
         {
             Cnt_SW6 = (128 + DEBOUCE_MAX); //Lo mantenemos en el límite superior sin superarlo
-            EstadoSwithes.bits.SW6 = 1;     //SW Pulsado
+            EstadoSwithes.bits.SW6 = 1;    //SW Pulsado
         }
     }
     else
@@ -152,14 +158,7 @@ void Actualiza_Estado_Switches(void)
         if(Cnt_SW6 < (128 - DEBOUCE_MAX))
         {
             Cnt_SW6 = (128 - DEBOUCE_MAX); //Lo mantenemos en el límite inferior sin superarlo
-            EstadoSwithes.bits.SW6 = 0;     //SW Reposo
+            EstadoSwithes.bits.SW6 = 0;    //SW Reposo
         }
     }
 }
-
-
-
-
-
-
-

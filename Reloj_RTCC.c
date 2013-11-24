@@ -86,11 +86,11 @@ void Rtcc_Configuracion_FechaHora_Reloj(rtccFechaHora* pFechaHoraReloj)
     //Con cada escritura sobre RTCVAL se decremente automáticamente.
     RCFGCALbits.RTCPTR = 3;								  	
 
-	//Carga de valores pasados como argumento
-	RTCVAL = pFechaHoraReloj->w[0];							//Año
-	RTCVAL = pFechaHoraReloj->w[1];							//Mes & Dia
-	RTCVAL = pFechaHoraReloj->w[2];							//Día Semana & Hora
-	RTCVAL = pFechaHoraReloj->w[3];							//Minutos & Segundos
+    //Carga de valores pasados como argumento
+    RTCVAL = pFechaHoraReloj->w[0];			//Año
+    RTCVAL = pFechaHoraReloj->w[1];			//Mes & Dia
+    RTCVAL = pFechaHoraReloj->w[2];			//Día Semana & Hora
+    RTCVAL = pFechaHoraReloj->w[3];			//Minutos & Segundos
     
     //Bloqueamos nuevamente la escritura
     mRtcc_Deshabilitar_Escritura();
@@ -117,10 +117,10 @@ void Rtcc_Configuracion_FechaHora_Alarma(rtccFechaHora *pFechaHoraAlarma)
     //Con cada escritura sobre el registro ALRMVAL el puntero decrementa automáticamente.
     ALCFGRPTbits.ALRMPTR = 2;								  	
 	
-	//Carga de valores pasados como argumento
-	ALRMVAL = pFechaHoraAlarma->w[1];							//Mes & Dia
-	ALRMVAL = pFechaHoraAlarma->w[2];							//Día Semana & Hora
-	ALRMVAL = pFechaHoraAlarma->w[3];							//Minutos & Segundos
+    //Carga de valores pasados como argumento
+    ALRMVAL = pFechaHoraAlarma->w[1];			//Mes & Dia
+    ALRMVAL = pFechaHoraAlarma->w[2];			//Día Semana & Hora
+    ALRMVAL = pFechaHoraAlarma->w[3];			//Minutos & Segundos
     
     //Bloqueamos nuevamente la escritura
     mRtcc_Deshabilitar_Escritura();
@@ -151,7 +151,7 @@ void Rtcc_Configuracion_Opciones_Alarma(BOOL repeticionInfinita, rtccRepetirAlar
     ALCFGRPTbits.ARPT = iniContadorRepeticiones;      //Si CHIME=0, la alarma se repetirá el número indicado aquí. Una vez que sea 0x00, la alarma se desactivará.
     ALCFGRPTbits.ALRMEN = 1;                          //Activación de la alarma
 	
-	//Bloqueamos nuevamente la escritura
+    //Bloqueamos nuevamente la escritura
     mRtcc_Deshabilitar_Escritura();
 }
 
@@ -172,7 +172,8 @@ void Rtcc_Activacion(void)
     {
         Rtcc_Habilitar_Escritura();
     }
-    
+
+    //Arranque del reloj
     mRtcc_Activar();
     
     //Bloqueamos nuevamente la escritura
@@ -234,7 +235,7 @@ void _ISR _RTCCInterrupt(void)
     rtccFechaHora FechaHoraReloj, FechaHoraAlarma;
     
     //Bajamos la bandera de interrupcción del RTCC
-     IFS3bits.RTCIF = 0;
+    IFS3bits.RTCIF = 0;
     
     //Lectura de la hora actual del reloj
     FechaHoraReloj = Lectura_FechaHora_Reloj();
@@ -250,21 +251,14 @@ void _ISR _RTCCInterrupt(void)
     {
         LED9_ON;
         //Configuramos de las nuevas opciones de la alarma, repetición cada medio segundo, 10 veces..
-	    Rtcc_Configuracion_Opciones_Alarma(CHIME_OFF,RPT_MEDIO_SEG, 0x0A);
-	    //Activación del reloj
-	    Rtcc_Activacion();
-	    LED9_OFF;
+        Rtcc_Configuracion_Opciones_Alarma(CHIME_OFF,RPT_MEDIO_SEG, 0x0A);
+        //Activación del reloj
+        Rtcc_Activacion();
+        LED9_OFF;
     } 
     else
     {
         if(IS_LED8_ON){LED8_OFF;}
         else{LED8_ON;}
     }   
-}    
-
-
-
-
-
-
-
+}

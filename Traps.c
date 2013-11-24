@@ -59,7 +59,7 @@
    
 #define _trapISR __attribute__((interrupt,no_auto_psv))   
    
-/* ****************************************************************  
+/******************************************************************
 * Standard Exception Vector handlers if ALTIVT (INTCON2<15>) = 0  *  
 *                                                                 *  
 * Not required for labs but good to always include                *  
@@ -126,8 +126,4 @@ void _trapISR _AltMathError(void)
    
         INTCON1bits.MATHERR = 0;   
         while(1);   
-}   
-
-
-
-
+}
