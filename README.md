@@ -1,4 +1,4 @@
-EUPLA_METEO.X
+EUPLA_METEO.X (MPLABX)
 =============
 
-Proyecto ITIS
+Proyecto ITIS.
