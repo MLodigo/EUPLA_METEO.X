@@ -14,6 +14,9 @@
 #define DIR_CNT_MUESTRAS_TOMADAS        0x0004
 #define DIR_MUESTRAS_POR_ENVIO_MODEM    0x0006
 #define DIR_ESTADO_SISTEMA              0x0008
+#define DIR_ALARMA_SMS                  0x0009
+#define DIR_TLF_ALARMA                  0x000A
+#define DIR_PIN_SIM_MODEM               0x0013
 
 #define NUM_MAX_MEDIDAS                 8000
 #define DIR_BASE_MEDIDAS                0x0300
@@ -37,7 +40,6 @@ BOOL Inicializacion_Modulo_EEPROM();
 BOOL Envio_Memoria_UART();
 BOOL Lectura_Completa_EEPROM();
 BOOL Borrado_Completo_EEPROM();
-BOOL Aplicar_Configuracion_Fabrica();
 
 #endif
 

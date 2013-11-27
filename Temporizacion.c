@@ -33,14 +33,14 @@ PRIVATE UINT Cnt_MSeg = 0;
 void Inicia_Temporizacion(void)
 {
     //Timer 1 por interrupción a 1 segundo con prescaler a 256
-	T1CON = 0b0000000000110000;
-	TMR1 = 0x00;
-	PR1 = (0.001/((256.0*2)/(8000000)));      //0.001 segundos = 1 MSeg.
-	IFS0bits.T1IF = 0;
-	IEC0bits.T1IE = 1;
-	T1CONbits.TON = 1; 
-	
-	Cnt_MSeg = 0; 
+    T1CON = 0b0000000000110000;
+    TMR1 = 0x00;
+    PR1 = (0.001/((256.0*2)/(8000000)));      //0.001 segundos = 1 MSeg.
+    IFS0bits.T1IF = 0;
+    IEC0bits.T1IE = 1;
+    T1CONbits.TON = 1;
+
+    Cnt_MSeg = 0; 
 }
 
 //********************************************************************************************************************

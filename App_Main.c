@@ -9,6 +9,7 @@
 #include "Gestor_Sensores.h"
 #include "Rele.h"
 #include "MenuOperario.h"
+#include "Reloj_RTCC.h"
 
 
 //********************************************************************************************************************    

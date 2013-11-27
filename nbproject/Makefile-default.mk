@@ -45,17 +45,17 @@ OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
 # Source Files Quoted if spaced
-SOURCEFILES_QUOTED_IF_SPACED=ADC.c App_Main.c Gestor_Bateria.c Gestor_EEPROM.c Gestor_Sensores.c Main.c PMP_LCD.c SPI.c SPI_EEPROM.c Switches.c Temporizacion.c Traps.c UART.c ../Menu_Operario.X/MenuOperario.c ../Menu_Operario.X/Menu.c Reloj_RTCC.c
+SOURCEFILES_QUOTED_IF_SPACED=ADC.c App_Main.c Gestor_Bateria.c Gestor_EEPROM.c Gestor_Sensores.c Main.c PMP_LCD.c SPI.c SPI_EEPROM.c Switches.c Temporizacion.c Traps.c UART.c Reloj_RTCC.c MenuOperario.c Menu.c
 
 # Object Files Quoted if spaced
-OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/ADC.o ${OBJECTDIR}/App_Main.o ${OBJECTDIR}/Gestor_Bateria.o ${OBJECTDIR}/Gestor_EEPROM.o ${OBJECTDIR}/Gestor_Sensores.o ${OBJECTDIR}/Main.o ${OBJECTDIR}/PMP_LCD.o ${OBJECTDIR}/SPI.o ${OBJECTDIR}/SPI_EEPROM.o ${OBJECTDIR}/Switches.o ${OBJECTDIR}/Temporizacion.o ${OBJECTDIR}/Traps.o ${OBJECTDIR}/UART.o ${OBJECTDIR}/_ext/374666656/MenuOperario.o ${OBJECTDIR}/_ext/374666656/Menu.o ${OBJECTDIR}/Reloj_RTCC.o
-POSSIBLE_DEPFILES=${OBJECTDIR}/ADC.o.d ${OBJECTDIR}/App_Main.o.d ${OBJECTDIR}/Gestor_Bateria.o.d ${OBJECTDIR}/Gestor_EEPROM.o.d ${OBJECTDIR}/Gestor_Sensores.o.d ${OBJECTDIR}/Main.o.d ${OBJECTDIR}/PMP_LCD.o.d ${OBJECTDIR}/SPI.o.d ${OBJECTDIR}/SPI_EEPROM.o.d ${OBJECTDIR}/Switches.o.d ${OBJECTDIR}/Temporizacion.o.d ${OBJECTDIR}/Traps.o.d ${OBJECTDIR}/UART.o.d ${OBJECTDIR}/_ext/374666656/MenuOperario.o.d ${OBJECTDIR}/_ext/374666656/Menu.o.d ${OBJECTDIR}/Reloj_RTCC.o.d
+OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/ADC.o ${OBJECTDIR}/App_Main.o ${OBJECTDIR}/Gestor_Bateria.o ${OBJECTDIR}/Gestor_EEPROM.o ${OBJECTDIR}/Gestor_Sensores.o ${OBJECTDIR}/Main.o ${OBJECTDIR}/PMP_LCD.o ${OBJECTDIR}/SPI.o ${OBJECTDIR}/SPI_EEPROM.o ${OBJECTDIR}/Switches.o ${OBJECTDIR}/Temporizacion.o ${OBJECTDIR}/Traps.o ${OBJECTDIR}/UART.o ${OBJECTDIR}/Reloj_RTCC.o ${OBJECTDIR}/MenuOperario.o ${OBJECTDIR}/Menu.o
+POSSIBLE_DEPFILES=${OBJECTDIR}/ADC.o.d ${OBJECTDIR}/App_Main.o.d ${OBJECTDIR}/Gestor_Bateria.o.d ${OBJECTDIR}/Gestor_EEPROM.o.d ${OBJECTDIR}/Gestor_Sensores.o.d ${OBJECTDIR}/Main.o.d ${OBJECTDIR}/PMP_LCD.o.d ${OBJECTDIR}/SPI.o.d ${OBJECTDIR}/SPI_EEPROM.o.d ${OBJECTDIR}/Switches.o.d ${OBJECTDIR}/Temporizacion.o.d ${OBJECTDIR}/Traps.o.d ${OBJECTDIR}/UART.o.d ${OBJECTDIR}/Reloj_RTCC.o.d ${OBJECTDIR}/MenuOperario.o.d ${OBJECTDIR}/Menu.o.d
 
 # Object Files
-OBJECTFILES=${OBJECTDIR}/ADC.o ${OBJECTDIR}/App_Main.o ${OBJECTDIR}/Gestor_Bateria.o ${OBJECTDIR}/Gestor_EEPROM.o ${OBJECTDIR}/Gestor_Sensores.o ${OBJECTDIR}/Main.o ${OBJECTDIR}/PMP_LCD.o ${OBJECTDIR}/SPI.o ${OBJECTDIR}/SPI_EEPROM.o ${OBJECTDIR}/Switches.o ${OBJECTDIR}/Temporizacion.o ${OBJECTDIR}/Traps.o ${OBJECTDIR}/UART.o ${OBJECTDIR}/_ext/374666656/MenuOperario.o ${OBJECTDIR}/_ext/374666656/Menu.o ${OBJECTDIR}/Reloj_RTCC.o
+OBJECTFILES=${OBJECTDIR}/ADC.o ${OBJECTDIR}/App_Main.o ${OBJECTDIR}/Gestor_Bateria.o ${OBJECTDIR}/Gestor_EEPROM.o ${OBJECTDIR}/Gestor_Sensores.o ${OBJECTDIR}/Main.o ${OBJECTDIR}/PMP_LCD.o ${OBJECTDIR}/SPI.o ${OBJECTDIR}/SPI_EEPROM.o ${OBJECTDIR}/Switches.o ${OBJECTDIR}/Temporizacion.o ${OBJECTDIR}/Traps.o ${OBJECTDIR}/UART.o ${OBJECTDIR}/Reloj_RTCC.o ${OBJECTDIR}/MenuOperario.o ${OBJECTDIR}/Menu.o
 
 # Source Files
-SOURCEFILES=ADC.c App_Main.c Gestor_Bateria.c Gestor_EEPROM.c Gestor_Sensores.c Main.c PMP_LCD.c SPI.c SPI_EEPROM.c Switches.c Temporizacion.c Traps.c UART.c ../Menu_Operario.X/MenuOperario.c ../Menu_Operario.X/Menu.c Reloj_RTCC.c
+SOURCEFILES=ADC.c App_Main.c Gestor_Bateria.c Gestor_EEPROM.c Gestor_Sensores.c Main.c PMP_LCD.c SPI.c SPI_EEPROM.c Switches.c Temporizacion.c Traps.c UART.c Reloj_RTCC.c MenuOperario.c Menu.c
 
 
 CFLAGS=
@@ -95,194 +95,226 @@ ${OBJECTDIR}/ADC.o: ADC.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR} 
 	@${RM} ${OBJECTDIR}/ADC.o.d 
 	@${RM} ${OBJECTDIR}/ADC.o.ok ${OBJECTDIR}/ADC.o.err 
+	@${RM} ${OBJECTDIR}/ADC.o 
 	@${FIXDEPS} "${OBJECTDIR}/ADC.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c ${MP_CC} $(MP_EXTRA_CC_PRE) -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1 -omf=elf -x c -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/ADC.o.d" -o ${OBJECTDIR}/ADC.o ADC.c    
 	
 ${OBJECTDIR}/App_Main.o: App_Main.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR} 
 	@${RM} ${OBJECTDIR}/App_Main.o.d 
 	@${RM} ${OBJECTDIR}/App_Main.o.ok ${OBJECTDIR}/App_Main.o.err 
+	@${RM} ${OBJECTDIR}/App_Main.o 
 	@${FIXDEPS} "${OBJECTDIR}/App_Main.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c ${MP_CC} $(MP_EXTRA_CC_PRE) -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1 -omf=elf -x c -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/App_Main.o.d" -o ${OBJECTDIR}/App_Main.o App_Main.c    
 	
 ${OBJECTDIR}/Gestor_Bateria.o: Gestor_Bateria.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR} 
 	@${RM} ${OBJECTDIR}/Gestor_Bateria.o.d 
 	@${RM} ${OBJECTDIR}/Gestor_Bateria.o.ok ${OBJECTDIR}/Gestor_Bateria.o.err 
+	@${RM} ${OBJECTDIR}/Gestor_Bateria.o 
 	@${FIXDEPS} "${OBJECTDIR}/Gestor_Bateria.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c ${MP_CC} $(MP_EXTRA_CC_PRE) -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1 -omf=elf -x c -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/Gestor_Bateria.o.d" -o ${OBJECTDIR}/Gestor_Bateria.o Gestor_Bateria.c    
 	
 ${OBJECTDIR}/Gestor_EEPROM.o: Gestor_EEPROM.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR} 
 	@${RM} ${OBJECTDIR}/Gestor_EEPROM.o.d 
 	@${RM} ${OBJECTDIR}/Gestor_EEPROM.o.ok ${OBJECTDIR}/Gestor_EEPROM.o.err 
+	@${RM} ${OBJECTDIR}/Gestor_EEPROM.o 
 	@${FIXDEPS} "${OBJECTDIR}/Gestor_EEPROM.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c ${MP_CC} $(MP_EXTRA_CC_PRE) -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1 -omf=elf -x c -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/Gestor_EEPROM.o.d" -o ${OBJECTDIR}/Gestor_EEPROM.o Gestor_EEPROM.c    
 	
 ${OBJECTDIR}/Gestor_Sensores.o: Gestor_Sensores.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR} 
 	@${RM} ${OBJECTDIR}/Gestor_Sensores.o.d 
 	@${RM} ${OBJECTDIR}/Gestor_Sensores.o.ok ${OBJECTDIR}/Gestor_Sensores.o.err 
+	@${RM} ${OBJECTDIR}/Gestor_Sensores.o 
 	@${FIXDEPS} "${OBJECTDIR}/Gestor_Sensores.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c ${MP_CC} $(MP_EXTRA_CC_PRE) -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1 -omf=elf -x c -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/Gestor_Sensores.o.d" -o ${OBJECTDIR}/Gestor_Sensores.o Gestor_Sensores.c    
 	
 ${OBJECTDIR}/Main.o: Main.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR} 
 	@${RM} ${OBJECTDIR}/Main.o.d 
 	@${RM} ${OBJECTDIR}/Main.o.ok ${OBJECTDIR}/Main.o.err 
+	@${RM} ${OBJECTDIR}/Main.o 
 	@${FIXDEPS} "${OBJECTDIR}/Main.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c ${MP_CC} $(MP_EXTRA_CC_PRE) -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1 -omf=elf -x c -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/Main.o.d" -o ${OBJECTDIR}/Main.o Main.c    
 	
 ${OBJECTDIR}/PMP_LCD.o: PMP_LCD.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR} 
 	@${RM} ${OBJECTDIR}/PMP_LCD.o.d 
 	@${RM} ${OBJECTDIR}/PMP_LCD.o.ok ${OBJECTDIR}/PMP_LCD.o.err 
+	@${RM} ${OBJECTDIR}/PMP_LCD.o 
 	@${FIXDEPS} "${OBJECTDIR}/PMP_LCD.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c ${MP_CC} $(MP_EXTRA_CC_PRE) -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1 -omf=elf -x c -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/PMP_LCD.o.d" -o ${OBJECTDIR}/PMP_LCD.o PMP_LCD.c    
 	
 ${OBJECTDIR}/SPI.o: SPI.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR} 
 	@${RM} ${OBJECTDIR}/SPI.o.d 
 	@${RM} ${OBJECTDIR}/SPI.o.ok ${OBJECTDIR}/SPI.o.err 
+	@${RM} ${OBJECTDIR}/SPI.o 
 	@${FIXDEPS} "${OBJECTDIR}/SPI.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c ${MP_CC} $(MP_EXTRA_CC_PRE) -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1 -omf=elf -x c -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/SPI.o.d" -o ${OBJECTDIR}/SPI.o SPI.c    
 	
 ${OBJECTDIR}/SPI_EEPROM.o: SPI_EEPROM.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR} 
 	@${RM} ${OBJECTDIR}/SPI_EEPROM.o.d 
 	@${RM} ${OBJECTDIR}/SPI_EEPROM.o.ok ${OBJECTDIR}/SPI_EEPROM.o.err 
+	@${RM} ${OBJECTDIR}/SPI_EEPROM.o 
 	@${FIXDEPS} "${OBJECTDIR}/SPI_EEPROM.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c ${MP_CC} $(MP_EXTRA_CC_PRE) -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1 -omf=elf -x c -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/SPI_EEPROM.o.d" -o ${OBJECTDIR}/SPI_EEPROM.o SPI_EEPROM.c    
 	
 ${OBJECTDIR}/Switches.o: Switches.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR} 
 	@${RM} ${OBJECTDIR}/Switches.o.d 
 	@${RM} ${OBJECTDIR}/Switches.o.ok ${OBJECTDIR}/Switches.o.err 
+	@${RM} ${OBJECTDIR}/Switches.o 
 	@${FIXDEPS} "${OBJECTDIR}/Switches.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c ${MP_CC} $(MP_EXTRA_CC_PRE) -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1 -omf=elf -x c -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/Switches.o.d" -o ${OBJECTDIR}/Switches.o Switches.c    
 	
 ${OBJECTDIR}/Temporizacion.o: Temporizacion.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR} 
 	@${RM} ${OBJECTDIR}/Temporizacion.o.d 
 	@${RM} ${OBJECTDIR}/Temporizacion.o.ok ${OBJECTDIR}/Temporizacion.o.err 
+	@${RM} ${OBJECTDIR}/Temporizacion.o 
 	@${FIXDEPS} "${OBJECTDIR}/Temporizacion.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c ${MP_CC} $(MP_EXTRA_CC_PRE) -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1 -omf=elf -x c -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/Temporizacion.o.d" -o ${OBJECTDIR}/Temporizacion.o Temporizacion.c    
 	
 ${OBJECTDIR}/Traps.o: Traps.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR} 
 	@${RM} ${OBJECTDIR}/Traps.o.d 
 	@${RM} ${OBJECTDIR}/Traps.o.ok ${OBJECTDIR}/Traps.o.err 
+	@${RM} ${OBJECTDIR}/Traps.o 
 	@${FIXDEPS} "${OBJECTDIR}/Traps.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c ${MP_CC} $(MP_EXTRA_CC_PRE) -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1 -omf=elf -x c -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/Traps.o.d" -o ${OBJECTDIR}/Traps.o Traps.c    
 	
 ${OBJECTDIR}/UART.o: UART.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR} 
 	@${RM} ${OBJECTDIR}/UART.o.d 
 	@${RM} ${OBJECTDIR}/UART.o.ok ${OBJECTDIR}/UART.o.err 
+	@${RM} ${OBJECTDIR}/UART.o 
 	@${FIXDEPS} "${OBJECTDIR}/UART.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c ${MP_CC} $(MP_EXTRA_CC_PRE) -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1 -omf=elf -x c -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/UART.o.d" -o ${OBJECTDIR}/UART.o UART.c    
-	
-${OBJECTDIR}/_ext/374666656/MenuOperario.o: ../Menu_Operario.X/MenuOperario.c  nbproject/Makefile-${CND_CONF}.mk
-	@${MKDIR} ${OBJECTDIR}/_ext/374666656 
-	@${RM} ${OBJECTDIR}/_ext/374666656/MenuOperario.o.d 
-	@${RM} ${OBJECTDIR}/_ext/374666656/MenuOperario.o.ok ${OBJECTDIR}/_ext/374666656/MenuOperario.o.err 
-	@${FIXDEPS} "${OBJECTDIR}/_ext/374666656/MenuOperario.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c ${MP_CC} $(MP_EXTRA_CC_PRE) -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1 -omf=elf -x c -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/_ext/374666656/MenuOperario.o.d" -o ${OBJECTDIR}/_ext/374666656/MenuOperario.o ../Menu_Operario.X/MenuOperario.c    
-	
-${OBJECTDIR}/_ext/374666656/Menu.o: ../Menu_Operario.X/Menu.c  nbproject/Makefile-${CND_CONF}.mk
-	@${MKDIR} ${OBJECTDIR}/_ext/374666656 
-	@${RM} ${OBJECTDIR}/_ext/374666656/Menu.o.d 
-	@${RM} ${OBJECTDIR}/_ext/374666656/Menu.o.ok ${OBJECTDIR}/_ext/374666656/Menu.o.err 
-	@${FIXDEPS} "${OBJECTDIR}/_ext/374666656/Menu.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c ${MP_CC} $(MP_EXTRA_CC_PRE) -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1 -omf=elf -x c -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/_ext/374666656/Menu.o.d" -o ${OBJECTDIR}/_ext/374666656/Menu.o ../Menu_Operario.X/Menu.c    
 	
 ${OBJECTDIR}/Reloj_RTCC.o: Reloj_RTCC.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR} 
 	@${RM} ${OBJECTDIR}/Reloj_RTCC.o.d 
 	@${RM} ${OBJECTDIR}/Reloj_RTCC.o.ok ${OBJECTDIR}/Reloj_RTCC.o.err 
+	@${RM} ${OBJECTDIR}/Reloj_RTCC.o 
 	@${FIXDEPS} "${OBJECTDIR}/Reloj_RTCC.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c ${MP_CC} $(MP_EXTRA_CC_PRE) -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1 -omf=elf -x c -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/Reloj_RTCC.o.d" -o ${OBJECTDIR}/Reloj_RTCC.o Reloj_RTCC.c    
+	
+${OBJECTDIR}/MenuOperario.o: MenuOperario.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} ${OBJECTDIR} 
+	@${RM} ${OBJECTDIR}/MenuOperario.o.d 
+	@${RM} ${OBJECTDIR}/MenuOperario.o.ok ${OBJECTDIR}/MenuOperario.o.err 
+	@${RM} ${OBJECTDIR}/MenuOperario.o 
+	@${FIXDEPS} "${OBJECTDIR}/MenuOperario.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c ${MP_CC} $(MP_EXTRA_CC_PRE) -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1 -omf=elf -x c -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/MenuOperario.o.d" -o ${OBJECTDIR}/MenuOperario.o MenuOperario.c    
+	
+${OBJECTDIR}/Menu.o: Menu.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} ${OBJECTDIR} 
+	@${RM} ${OBJECTDIR}/Menu.o.d 
+	@${RM} ${OBJECTDIR}/Menu.o.ok ${OBJECTDIR}/Menu.o.err 
+	@${RM} ${OBJECTDIR}/Menu.o 
+	@${FIXDEPS} "${OBJECTDIR}/Menu.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c ${MP_CC} $(MP_EXTRA_CC_PRE) -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1 -omf=elf -x c -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/Menu.o.d" -o ${OBJECTDIR}/Menu.o Menu.c    
 	
 else
 ${OBJECTDIR}/ADC.o: ADC.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR} 
 	@${RM} ${OBJECTDIR}/ADC.o.d 
 	@${RM} ${OBJECTDIR}/ADC.o.ok ${OBJECTDIR}/ADC.o.err 
+	@${RM} ${OBJECTDIR}/ADC.o 
 	@${FIXDEPS} "${OBJECTDIR}/ADC.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c ${MP_CC} $(MP_EXTRA_CC_PRE)  -g -omf=elf -x c -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/ADC.o.d" -o ${OBJECTDIR}/ADC.o ADC.c    
 	
 ${OBJECTDIR}/App_Main.o: App_Main.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR} 
 	@${RM} ${OBJECTDIR}/App_Main.o.d 
 	@${RM} ${OBJECTDIR}/App_Main.o.ok ${OBJECTDIR}/App_Main.o.err 
+	@${RM} ${OBJECTDIR}/App_Main.o 
 	@${FIXDEPS} "${OBJECTDIR}/App_Main.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c ${MP_CC} $(MP_EXTRA_CC_PRE)  -g -omf=elf -x c -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/App_Main.o.d" -o ${OBJECTDIR}/App_Main.o App_Main.c    
 	
 ${OBJECTDIR}/Gestor_Bateria.o: Gestor_Bateria.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR} 
 	@${RM} ${OBJECTDIR}/Gestor_Bateria.o.d 
 	@${RM} ${OBJECTDIR}/Gestor_Bateria.o.ok ${OBJECTDIR}/Gestor_Bateria.o.err 
+	@${RM} ${OBJECTDIR}/Gestor_Bateria.o 
 	@${FIXDEPS} "${OBJECTDIR}/Gestor_Bateria.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c ${MP_CC} $(MP_EXTRA_CC_PRE)  -g -omf=elf -x c -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/Gestor_Bateria.o.d" -o ${OBJECTDIR}/Gestor_Bateria.o Gestor_Bateria.c    
 	
 ${OBJECTDIR}/Gestor_EEPROM.o: Gestor_EEPROM.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR} 
 	@${RM} ${OBJECTDIR}/Gestor_EEPROM.o.d 
 	@${RM} ${OBJECTDIR}/Gestor_EEPROM.o.ok ${OBJECTDIR}/Gestor_EEPROM.o.err 
+	@${RM} ${OBJECTDIR}/Gestor_EEPROM.o 
 	@${FIXDEPS} "${OBJECTDIR}/Gestor_EEPROM.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c ${MP_CC} $(MP_EXTRA_CC_PRE)  -g -omf=elf -x c -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/Gestor_EEPROM.o.d" -o ${OBJECTDIR}/Gestor_EEPROM.o Gestor_EEPROM.c    
 	
 ${OBJECTDIR}/Gestor_Sensores.o: Gestor_Sensores.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR} 
 	@${RM} ${OBJECTDIR}/Gestor_Sensores.o.d 
 	@${RM} ${OBJECTDIR}/Gestor_Sensores.o.ok ${OBJECTDIR}/Gestor_Sensores.o.err 
+	@${RM} ${OBJECTDIR}/Gestor_Sensores.o 
 	@${FIXDEPS} "${OBJECTDIR}/Gestor_Sensores.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c ${MP_CC} $(MP_EXTRA_CC_PRE)  -g -omf=elf -x c -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/Gestor_Sensores.o.d" -o ${OBJECTDIR}/Gestor_Sensores.o Gestor_Sensores.c    
 	
 ${OBJECTDIR}/Main.o: Main.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR} 
 	@${RM} ${OBJECTDIR}/Main.o.d 
 	@${RM} ${OBJECTDIR}/Main.o.ok ${OBJECTDIR}/Main.o.err 
+	@${RM} ${OBJECTDIR}/Main.o 
 	@${FIXDEPS} "${OBJECTDIR}/Main.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c ${MP_CC} $(MP_EXTRA_CC_PRE)  -g -omf=elf -x c -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/Main.o.d" -o ${OBJECTDIR}/Main.o Main.c    
 	
 ${OBJECTDIR}/PMP_LCD.o: PMP_LCD.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR} 
 	@${RM} ${OBJECTDIR}/PMP_LCD.o.d 
 	@${RM} ${OBJECTDIR}/PMP_LCD.o.ok ${OBJECTDIR}/PMP_LCD.o.err 
+	@${RM} ${OBJECTDIR}/PMP_LCD.o 
 	@${FIXDEPS} "${OBJECTDIR}/PMP_LCD.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c ${MP_CC} $(MP_EXTRA_CC_PRE)  -g -omf=elf -x c -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/PMP_LCD.o.d" -o ${OBJECTDIR}/PMP_LCD.o PMP_LCD.c    
 	
 ${OBJECTDIR}/SPI.o: SPI.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR} 
 	@${RM} ${OBJECTDIR}/SPI.o.d 
 	@${RM} ${OBJECTDIR}/SPI.o.ok ${OBJECTDIR}/SPI.o.err 
+	@${RM} ${OBJECTDIR}/SPI.o 
 	@${FIXDEPS} "${OBJECTDIR}/SPI.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c ${MP_CC} $(MP_EXTRA_CC_PRE)  -g -omf=elf -x c -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/SPI.o.d" -o ${OBJECTDIR}/SPI.o SPI.c    
 	
 ${OBJECTDIR}/SPI_EEPROM.o: SPI_EEPROM.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR} 
 	@${RM} ${OBJECTDIR}/SPI_EEPROM.o.d 
 	@${RM} ${OBJECTDIR}/SPI_EEPROM.o.ok ${OBJECTDIR}/SPI_EEPROM.o.err 
+	@${RM} ${OBJECTDIR}/SPI_EEPROM.o 
 	@${FIXDEPS} "${OBJECTDIR}/SPI_EEPROM.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c ${MP_CC} $(MP_EXTRA_CC_PRE)  -g -omf=elf -x c -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/SPI_EEPROM.o.d" -o ${OBJECTDIR}/SPI_EEPROM.o SPI_EEPROM.c    
 	
 ${OBJECTDIR}/Switches.o: Switches.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR} 
 	@${RM} ${OBJECTDIR}/Switches.o.d 
 	@${RM} ${OBJECTDIR}/Switches.o.ok ${OBJECTDIR}/Switches.o.err 
+	@${RM} ${OBJECTDIR}/Switches.o 
 	@${FIXDEPS} "${OBJECTDIR}/Switches.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c ${MP_CC} $(MP_EXTRA_CC_PRE)  -g -omf=elf -x c -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/Switches.o.d" -o ${OBJECTDIR}/Switches.o Switches.c    
 	
 ${OBJECTDIR}/Temporizacion.o: Temporizacion.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR} 
 	@${RM} ${OBJECTDIR}/Temporizacion.o.d 
 	@${RM} ${OBJECTDIR}/Temporizacion.o.ok ${OBJECTDIR}/Temporizacion.o.err 
+	@${RM} ${OBJECTDIR}/Temporizacion.o 
 	@${FIXDEPS} "${OBJECTDIR}/Temporizacion.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c ${MP_CC} $(MP_EXTRA_CC_PRE)  -g -omf=elf -x c -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/Temporizacion.o.d" -o ${OBJECTDIR}/Temporizacion.o Temporizacion.c    
 	
 ${OBJECTDIR}/Traps.o: Traps.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR} 
 	@${RM} ${OBJECTDIR}/Traps.o.d 
 	@${RM} ${OBJECTDIR}/Traps.o.ok ${OBJECTDIR}/Traps.o.err 
+	@${RM} ${OBJECTDIR}/Traps.o 
 	@${FIXDEPS} "${OBJECTDIR}/Traps.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c ${MP_CC} $(MP_EXTRA_CC_PRE)  -g -omf=elf -x c -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/Traps.o.d" -o ${OBJECTDIR}/Traps.o Traps.c    
 	
 ${OBJECTDIR}/UART.o: UART.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR} 
 	@${RM} ${OBJECTDIR}/UART.o.d 
 	@${RM} ${OBJECTDIR}/UART.o.ok ${OBJECTDIR}/UART.o.err 
+	@${RM} ${OBJECTDIR}/UART.o 
 	@${FIXDEPS} "${OBJECTDIR}/UART.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c ${MP_CC} $(MP_EXTRA_CC_PRE)  -g -omf=elf -x c -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/UART.o.d" -o ${OBJECTDIR}/UART.o UART.c    
-	
-${OBJECTDIR}/_ext/374666656/MenuOperario.o: ../Menu_Operario.X/MenuOperario.c  nbproject/Makefile-${CND_CONF}.mk
-	@${MKDIR} ${OBJECTDIR}/_ext/374666656 
-	@${RM} ${OBJECTDIR}/_ext/374666656/MenuOperario.o.d 
-	@${RM} ${OBJECTDIR}/_ext/374666656/MenuOperario.o.ok ${OBJECTDIR}/_ext/374666656/MenuOperario.o.err 
-	@${FIXDEPS} "${OBJECTDIR}/_ext/374666656/MenuOperario.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c ${MP_CC} $(MP_EXTRA_CC_PRE)  -g -omf=elf -x c -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/_ext/374666656/MenuOperario.o.d" -o ${OBJECTDIR}/_ext/374666656/MenuOperario.o ../Menu_Operario.X/MenuOperario.c    
-	
-${OBJECTDIR}/_ext/374666656/Menu.o: ../Menu_Operario.X/Menu.c  nbproject/Makefile-${CND_CONF}.mk
-	@${MKDIR} ${OBJECTDIR}/_ext/374666656 
-	@${RM} ${OBJECTDIR}/_ext/374666656/Menu.o.d 
-	@${RM} ${OBJECTDIR}/_ext/374666656/Menu.o.ok ${OBJECTDIR}/_ext/374666656/Menu.o.err 
-	@${FIXDEPS} "${OBJECTDIR}/_ext/374666656/Menu.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c ${MP_CC} $(MP_EXTRA_CC_PRE)  -g -omf=elf -x c -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/_ext/374666656/Menu.o.d" -o ${OBJECTDIR}/_ext/374666656/Menu.o ../Menu_Operario.X/Menu.c    
 	
 ${OBJECTDIR}/Reloj_RTCC.o: Reloj_RTCC.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR} 
 	@${RM} ${OBJECTDIR}/Reloj_RTCC.o.d 
 	@${RM} ${OBJECTDIR}/Reloj_RTCC.o.ok ${OBJECTDIR}/Reloj_RTCC.o.err 
+	@${RM} ${OBJECTDIR}/Reloj_RTCC.o 
 	@${FIXDEPS} "${OBJECTDIR}/Reloj_RTCC.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c ${MP_CC} $(MP_EXTRA_CC_PRE)  -g -omf=elf -x c -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/Reloj_RTCC.o.d" -o ${OBJECTDIR}/Reloj_RTCC.o Reloj_RTCC.c    
+	
+${OBJECTDIR}/MenuOperario.o: MenuOperario.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} ${OBJECTDIR} 
+	@${RM} ${OBJECTDIR}/MenuOperario.o.d 
+	@${RM} ${OBJECTDIR}/MenuOperario.o.ok ${OBJECTDIR}/MenuOperario.o.err 
+	@${RM} ${OBJECTDIR}/MenuOperario.o 
+	@${FIXDEPS} "${OBJECTDIR}/MenuOperario.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c ${MP_CC} $(MP_EXTRA_CC_PRE)  -g -omf=elf -x c -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/MenuOperario.o.d" -o ${OBJECTDIR}/MenuOperario.o MenuOperario.c    
+	
+${OBJECTDIR}/Menu.o: Menu.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} ${OBJECTDIR} 
+	@${RM} ${OBJECTDIR}/Menu.o.d 
+	@${RM} ${OBJECTDIR}/Menu.o.ok ${OBJECTDIR}/Menu.o.err 
+	@${RM} ${OBJECTDIR}/Menu.o 
+	@${FIXDEPS} "${OBJECTDIR}/Menu.o.d" $(SILENT) -rsi ${MP_CC_DIR}../ -c ${MP_CC} $(MP_EXTRA_CC_PRE)  -g -omf=elf -x c -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/Menu.o.d" -o ${OBJECTDIR}/Menu.o Menu.c    
 	
 endif
 

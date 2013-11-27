@@ -230,7 +230,7 @@ rtccFechaHora Lectura_FechaHora_Alarma(void)
  *
  * Overview:        Rutina de atención a la interrupción del módulo RTCC.
  ***********************************************************************************************************************************************/
-void _ISR _RTCCInterrupt(void)
+void __attribute__((interrupt, no_auto_psv)) _RTCCInterrupt(void)
 {
     rtccFechaHora FechaHoraReloj, FechaHoraAlarma;
     

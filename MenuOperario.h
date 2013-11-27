@@ -12,15 +12,6 @@
 //////////////////////////////////////////////////////////////    
 //DEFINES
 //////////////////////////////////////////////////////////////
-#define DIR_CNT_DESPIERTES              0x0000
-#define DIR_DESPIERTES_POR_MEDIDA       0x0002
-#define DIR_CNT_MUESTRAS_TOMADAS        0x0004
-#define DIR_MUESTRAS_POR_ENVIO_MODEM    0x0006
-#define DIR_ESTADO_SISTEMA              0x0008
-#define DIR_ALARMA_SMS                  0x0009
-#define DIR_TLF_ALARMA                  0x000A
-#define DIR_PIN_SIM_MODEM               0x0013
-
 #define ENVIOS_SMS_ACTIVADO             0x01
 #define ENVIOS_SMS_DESACTIVADO          0x00
 
@@ -38,7 +29,7 @@
 #define ESTADO_NORMAL                   0x00
 #define ESTADO_RECUP_BAT                0x01
 
-#define TAM_MEMORIA_EEPROM              0x8000
+//#define TAM_MEMORIA_EEPROM              0x8000
 
 //////////////////////////////////////////////////////////////    
 //MACROS

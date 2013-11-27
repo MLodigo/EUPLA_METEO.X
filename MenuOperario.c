@@ -7,6 +7,8 @@
 #include "Switches.h"
 #include "Temporizacion.h"
 #include "UART.h"
+#include "stdio.h"
+#include "Gestor_EEPROM.h"
 
 
 //********************************************************************************************************************    
@@ -45,7 +47,6 @@ PRIVATE ITEM_MENU EnvioUART;
 //********************************************************************************************************************
 //Prototipos de funciones privadas
 void Inicializa_Estructura_Menu(void);
-void Incializa_Comunicacion_EEPROM(void);
 void Eje_Interv_Min_Muestras(void);
 WORD Read_Despiertes_Muestra(void);
 void Eje_Interv_Envio_Muestras(void);
@@ -59,12 +60,12 @@ BOOL Read_PIN_Modem(unsigned char *Numero);
 void Eje_Estado_Sistema(void);
 BOOL Read_Estado_Sistema(unsigned char *Estado);
 void Eje_Reset_Fabrica(void);
-BOOL Borrado_EEPROM();
 BOOL Aplicar_Configuracion_Fabrica();
 void Eje_Envio_Mem_UART(void);
 
-
-//Método que construye la estructura relacional de todos los nodos del menú
+//********************************************************************************************************************
+//Método que construye la estructura relacional de todos los nodos del menú.
+//********************************************************************************************************************
 void Inicializa_Estructura_Menu(void)
 {
     if(!Estructura_Menu_Inicializada)
@@ -93,16 +94,9 @@ void Inicializa_Estructura_Menu(void)
     Estructura_Menu_Inicializada = TRUE;
 }
 
-//Función que realiza lo necesario para habilitar la comunicaión con la memoria EEPROM
-void Incializa_Comunicacion_EEPROM(void)
-{
-    SPI_Inicializacion();
-    EEPROM_Inicializacion();
-    Inicia_Temporizacion();
-    Retardo(50);
-}
-
-//Función que obtiene el valor actual del intervalo programadoo de despiertes para realizar una muestra
+//********************************************************************************************************************
+//Función que obtiene el valor actual del intervalo programadoo de despiertes para realizar una muestra.
+//********************************************************************************************************************
 WORD Read_Despiertes_Muestra()
 {
     WORD_VAL Resultado;
@@ -124,7 +118,9 @@ WORD Read_Despiertes_Muestra()
     return Resultado.Val;
 }
 
+//********************************************************************************************************************
 //Función que obtiene el valor actual del número de muestras programado por el que se efectuará un envío por modem.
+//********************************************************************************************************************
 WORD Read_NumMuestras_Envio()
 {
     WORD_VAL Resultado;
@@ -146,7 +142,9 @@ WORD Read_NumMuestras_Envio()
     return Resultado.Val;
 }
 
-//Función que obtiene la configuración actual de envío de SMS de alarma (Activado o desactivado)
+//********************************************************************************************************************
+//Función que obtiene la configuración actual de envío de SMS de alarma (Activado o desactivado).
+//********************************************************************************************************************
 BYTE Read_Estado_Envio_SMS_Alarma()
 {
     BYTE Resultado = 0xFF;
@@ -167,7 +165,9 @@ BYTE Read_Estado_Envio_SMS_Alarma()
     return Resultado;
 }
 
+//********************************************************************************************************************
 //Función que realiza la lectura del número de teléfono móvil al que serán enviados los mensajes de alarma.
+//********************************************************************************************************************
 BOOL Read_Tlf_Envio_Alarma(unsigned char *Numero)
 {
     BYTE Cifra = 0;
@@ -202,7 +202,9 @@ BOOL Read_Tlf_Envio_Alarma(unsigned char *Numero)
     return Resultado;
 }
 
+//********************************************************************************************************************
 //Función que realiza la lectura del número PIN.
+//********************************************************************************************************************
 BOOL Read_PIN_Modem(unsigned char *Numero)
 {
     BYTE Cifra = 0;
@@ -237,7 +239,9 @@ BOOL Read_PIN_Modem(unsigned char *Numero)
     return Resultado;
 }
 
-//Función que realiza la lectura del estado actual del sistema. NORMAL o RECUPERACION BATERIA
+//********************************************************************************************************************
+//Función que realiza la lectura del estado actual del sistema. NORMAL o RECUPERACION BATERIA.
+//********************************************************************************************************************
 BOOL Read_Estado_Sistema(unsigned char *Estado)
 {
     BYTE Reintentos = 0;
@@ -260,27 +264,15 @@ BOOL Read_Estado_Sistema(unsigned char *Estado)
     return Resultado;
 }
 
-//Función que inicializa la memoria EEPROM poniendo todas las posiciónes a 0xFF
-BOOL Borrado_EEPROM()
-{
-    WORD cntDireccion=0;
-
-    //Escritura completa de la memoria (2 minutos)
-    for(cntDireccion=0; cntDireccion<TAM_MEMORIA_EEPROM; cntDireccion++)
-    {
-        EEPROM_WriteByte(0xFF, cntDireccion);
-    }
-
-    return TRUE;
-}
-
+//********************************************************************************************************************
 //Función que inicializa la memoria EEPROM a parámetros de fábrica.
+//********************************************************************************************************************
 BOOL Aplicar_Configuracion_Fabrica()
 {
     WORD_VAL Dato;
 
     //Se inicializa la memoria por completo a 0xFF
-    if(!Borrado_EEPROM()){return FALSE;}
+    if(!Borrado_Completo_EEPROM()){return FALSE;}
 
     //Programación de la zona de configuración
     //Despiertes de micro, entre muestras tomadas -> Cada minuto: (15 despiertes)*(4 seg.cada despierte) = 60 segundos.
@@ -326,7 +318,9 @@ BOOL Aplicar_Configuracion_Fabrica()
 //FUNCIONES HOJA DE ARBOL
 //////////////////////////
 
-//Función que controla la gestión de la programación mediante switches del intervalo en minutos entre la toma de muestras
+//********************************************************************************************************************
+//Función que controla la gestión de la programación mediante switches del intervalo en minutos entre la toma de muestras.
+//********************************************************************************************************************
 void Eje_Interv_Min_Muestras(void)
 {
     BOOL Salir = FALSE;                 //Indica cuando se saldrá del menú
@@ -410,7 +404,9 @@ void Eje_Interv_Min_Muestras(void)
     while (!Salir);
 }
 
-//Función que gestiona la configuración del momento de envío del conjunto de muestras guardadas vía modem
+//********************************************************************************************************************
+//Función que gestiona la configuración del momento de envío del conjunto de muestras guardadas vía modem.
+//********************************************************************************************************************
 void Eje_Interv_Envio_Muestras(void)
 {
     BOOL Salir = FALSE;                 //Indica cuando se saldrá del menú
@@ -487,7 +483,9 @@ void Eje_Interv_Envio_Muestras(void)
     while (!Salir);
 }
 
-//Función que programa si el envío de SMS de alarma está activado o desactivado
+//********************************************************************************************************************
+//Función que programa si el envío de SMS de alarma está activado o desactivado.
+//********************************************************************************************************************
 void Eje_Config_Envio_SMS_Alarma(void)
 {
     BOOL Salir = FALSE;                   //Indica cuando se saldrá del menú
@@ -563,7 +561,9 @@ void Eje_Config_Envio_SMS_Alarma(void)
     while (!Salir);
 }
 
-//Función que permite programar el número de teléfono al que enviar los SMS de alarmas
+//********************************************************************************************************************
+//Función que permite programar el número de teléfono al que enviar los SMS de alarmas.
+//********************************************************************************************************************
 void Eje_Config_Tlf_Envio_SMS_Alarma(void)
 {
     BYTE NumTlf[10] = {'0','0','0','0','0','0','0','0','0','\0'}; //Dígitos en ASCII del número de teléfono. La cadena termina con el caracter nulo '\0'
@@ -718,7 +718,9 @@ void Eje_Config_Tlf_Envio_SMS_Alarma(void)
     }while (!Salir);
 }
 
-//Función que permite programar el PIN para la activación de la tarjeta SIM del modem de comunicaciones
+//********************************************************************************************************************
+//Función que permite programar el PIN para la activación de la tarjeta SIM del modem de comunicaciones.
+//********************************************************************************************************************
 void Eje_Config_PIN_SIM(void)
 {
     BYTE NumPIN[5] = {'0','0','0','0','\0'}; //Dígitos en ASCII del PIN. La cadena termina con el caracter nulo '\0'
@@ -870,7 +872,9 @@ void Eje_Config_PIN_SIM(void)
     }while (!Salir);
 }
 
-//Función que permite consultar el estado actual del sistema. NORMAL o RECUPERACION BATERIA
+//********************************************************************************************************************
+//Función que permite consultar el estado actual del sistema. NORMAL o RECUPERACION BATERIA.
+//********************************************************************************************************************
 void Eje_Estado_Sistema(void)
 {
    BYTE Estado_Sistema = 0xFF;    //Indica el estado del sistema
@@ -899,7 +903,9 @@ void Eje_Estado_Sistema(void)
     
 }
 
-//Función que permite situar los valores de la memoria EEPROM a unos valores iniciales y conocidos como parámetros de fábrica
+//********************************************************************************************************************
+//Función que permite situar los valores de la memoria EEPROM a unos valores iniciales y conocidos como parámetros de fábrica.
+//********************************************************************************************************************
 void Eje_Reset_Fabrica(void)
 {
      LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Ini. EEPROM...  ");
@@ -917,7 +923,9 @@ void Eje_Reset_Fabrica(void)
      Retardo(2000);
 }
 
-//Función que realiza el envío de la memoria completa EEPROM, byte a byte, por el puerto serie
+//********************************************************************************************************************
+//Función que realiza el envío de la memoria completa EEPROM, byte a byte, por el puerto serie.
+//********************************************************************************************************************
 void Eje_Envio_Mem_UART(void)
 {
     WORD cntDireccion=0;
@@ -944,6 +952,10 @@ void Eje_Envio_Mem_UART(void)
 //********************************************************************************************************************
 //********************************************************************************************************************
 
+//********************************************************************************************************************
+//Función que permite inicializar la estructura en arbol de los nodos que forman el menú operario.
+//Contiene el buque principal que permite moverse mediante los switches por los nodos, y configurar los parámetros.
+//********************************************************************************************************************
 void MenuOperario (void)
 {
     //Indica cuando se saldrá del menú
@@ -954,7 +966,7 @@ void MenuOperario (void)
     char CaracterMain[]=">";
 
     //Inicialización periféricos que intervienen en el menú
-    Incializa_Comunicacion_EEPROM();
+    Inicializacion_Modulo_EEPROM();
     Inicializa_Switches();
     LCD_Inicializacion();
     LCD_Clear();

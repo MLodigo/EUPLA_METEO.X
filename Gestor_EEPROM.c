@@ -77,32 +77,3 @@ BOOL Borrado_Completo_EEPROM()
 
     return TRUE;
 }
-
-//********************************************************************************************************************
-//Función que inicializa la memoria EEPROM a parámetros de fábrica.
-// -Se realiza un borrado completo de la memoria.
-// -Muestreo de sensores:           1 minuto.
-// -Envío de mediciones vía modem:  3 minutos.
-// -Estado del sistema:             Modo Normal.
-//********************************************************************************************************************
-BOOL Aplicar_Configuracion_Fabrica()
-{
-    WORD_VAL Dato;
-    // TODO Habilitar borrado
-    //Borrado_Completo_EEPROM();
-    // TODO Cambiar el valor de la frecuencia de muestreo de sensores
-    Dato.Val=3; //15; //Toma medidas cada minuto
-    EEPROM_WriteByte(Dato.byte.LB, DIR_DESPIERTES_POR_MEDIDA);
-    EEPROM_WriteByte(Dato.byte.HB, DIR_DESPIERTES_POR_MEDIDA+1);
-
-    Dato.Val=5;  //Envia los datos vía modem cada 3 minutos
-    EEPROM_WriteByte(Dato.byte.LB, DIR_MUESTRAS_POR_ENVIO_MODEM);
-    EEPROM_WriteByte(Dato.byte.HB, DIR_MUESTRAS_POR_ENVIO_MODEM+1);
-
-    //Estado del sistema en modo normal con batería a nivel adecuado
-    // TODO Ajustar correctamente el estado del sistema
-    Dato.Val=1;
-    EEPROM_WriteByte(Dato.byte.LB, DIR_ESTADO_SISTEMA);
-
-    return TRUE;
-}
