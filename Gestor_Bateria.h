@@ -9,6 +9,12 @@
 //////////////////////////////////////////////////////////////    
 //TIPOS DEFINIDOS Y ESTRUCTURAS
 //////////////////////////////////////////////////////////////
+#define UMBRAL_BAJO         20
+#define UMBRAL_MEDIO_BAJO   40
+#define UMBRAL_MEDIO        60
+#define UMBRAL_MEDIO_ALTO   80
+#define UMBRAL_ALTO         95
+
 typedef enum _NivelBateria
 {
     NIVEL_BAJO = 0,

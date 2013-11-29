@@ -68,23 +68,23 @@ NIVEL_BATERIA Comprobacion_Estado_Bateria()
     }
     while((Muestra.Nivel_Bateria==0xFFFF)&&(Reintentos<3));
 
-    if(Muestra.Nivel_Bateria<=1000)
+    if(Muestra.Nivel_Bateria<=UMBRAL_BAJO)
     {
-        return NIVEL_BAJO; //TODO Modificar constantes de tramos de niveles BAJO, MEDIO, ALTO..
+        return NIVEL_BAJO; 
     }
-    else if((Muestra.Nivel_Bateria>1000)&&(Muestra.Nivel_Bateria<=1500))
+    else if((Muestra.Nivel_Bateria>UMBRAL_BAJO)&&(Muestra.Nivel_Bateria<=UMBRAL_MEDIO_BAJO))
     {
         return NIVEL_MEDIO_BAJO;
     }
-    else if((Muestra.Nivel_Bateria>1500)&&(Muestra.Nivel_Bateria<=2000))
+    else if((Muestra.Nivel_Bateria>UMBRAL_MEDIO_BAJO)&&(Muestra.Nivel_Bateria<=UMBRAL_MEDIO))
     {
         return NIVEL_MEDIO;
     }
-    else if((Muestra.Nivel_Bateria>2000)&&(Muestra.Nivel_Bateria<=3000))
+    else if((Muestra.Nivel_Bateria>UMBRAL_MEDIO)&&(Muestra.Nivel_Bateria<=UMBRAL_MEDIO_ALTO))
     {
         return NIVEL_MEDIO_ALTO;
     }
-    else if(Muestra.Nivel_Bateria>3000)
+    else if(Muestra.Nivel_Bateria>UMBRAL_ALTO)
     {
         return NIVEL_ALTO;
     } 
