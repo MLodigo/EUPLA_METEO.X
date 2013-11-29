@@ -21,25 +21,41 @@ void Actualiza_Sensores(void);
 //Función que mantiene actualizada las variables Sensores y Batería tras cada medida realizada por el conversor ADC
 //********************************************************************************************************************
 void Actualiza_Sensores(void) {
-    //Media de Temperatura
-    Sensores.Temperatura = ADC1BUF2 + ADC1BUF6 + ADC1BUFA + ADC1BUFE;
-    Sensores.Temperatura = (DWORD) (Sensores.Temperatura / 4);
-    Sensores.Temperatura = (DWORD) (((Sensores.Temperatura * 3300) / 1024) - 525);
+    float Suma = 0;
+    float Media = 0.0;
+    float Resultado = 0;
 
-    //Media de Pluviometria
-    Sensores.Pluviometria = ADC1BUF3 + ADC1BUF7 + ADC1BUFB + ADC1BUFF;
-    Sensores.Pluviometria = (DWORD) (Sensores.Pluviometria / 4);
-    Sensores.Pluviometria = (DWORD) ((Sensores.Pluviometria * 3300) / 1024);
+    //Media de Temperatura en décimas de grado centígrado.  Tª=((valorADC * (3300/1024)) - 500)/10
+    Suma = ADC1BUF2 + ADC1BUF6 + ADC1BUFA + ADC1BUFE;
+    Media = (Suma / 4);         //Media de las 4 muestras tomadas del sensor
+    Resultado = Media * 3300;   //Aplicación de la fórmula del conversión del sensor (Documentación)
+    Resultado /=  1024;
+    Resultado -=  500;
+    Resultado /=  10;
+    Resultado -= 6;             //Ajuste
+    Resultado *= 10;            //Décimas de grado
+    Sensores.Temperatura = (WORD)Resultado;
 
-    //Medida de Velocidad Aire
-    Sensores.Vel_Aire = ADC1BUF1 + ADC1BUF5 + ADC1BUF9 + ADC1BUFD;
-    Sensores.Vel_Aire = (DWORD) (Sensores.Vel_Aire / 4);
-    Sensores.Vel_Aire = (DWORD) ((Sensores.Vel_Aire * 3300) / 1024);
+    //Media de Pluviometria en litros/m2. Medición máxima 200 litros/m2.
+    Suma = ADC1BUF3 + ADC1BUF7 + ADC1BUFB + ADC1BUFF;
+    Media = (Suma / 4);
+    Resultado = Media * 200;
+    Resultado /= 0x3FF;
+    Sensores.Pluviometria = (WORD)Resultado;
 
-    //Medida de Estado Batería
-    Sensores.Nivel_Bateria = ADC1BUF0 + ADC1BUF4 + ADC1BUF8 + ADC1BUFC;
-    Sensores.Nivel_Bateria = (DWORD) (Sensores.Nivel_Bateria / 4);
-    Sensores.Nivel_Bateria = (DWORD) ((Sensores.Nivel_Bateria * 3300) / 1024);
+    //Medida de Velocidad Aire en km/h. Medición máxima 150 km/h.
+    Suma = ADC1BUF1 + ADC1BUF5 + ADC1BUF9 + ADC1BUFD;
+    Media = (Suma / 4);
+    Resultado = Media * 150;
+    Resultado /= 0x3FF;
+    Sensores.Vel_Aire = (WORD)Resultado;
+
+    //Medida de Estado Batería en porcentaje.
+    Suma = ADC1BUF0 + ADC1BUF4 + ADC1BUF8 + ADC1BUFC;
+    Media = (Suma / 4);
+    Resultado = Media * 100;
+    Resultado /= 0x3FF;
+    Sensores.Nivel_Bateria = (WORD)Resultado;
 }
 
 //********************************************************************************************************************    

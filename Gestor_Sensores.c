@@ -106,10 +106,10 @@ SENSORES Tomar_Muestra_Sensores()
     BYTE Reintentos = 0;
 
     //Inicializamos variable Muestra
-    Muestra.Temperatura = 0xFFFFFFFF;
-    Muestra.Pluviometria = 0xFFFFFFFF;
-    Muestra.Vel_Aire = 0xFFFFFFFF;
-    Muestra.Nivel_Bateria = 0xFFFFFFFF;
+    Muestra.Temperatura = 0xFFFF;
+    Muestra.Pluviometria = 0xFFFF;
+    Muestra.Vel_Aire = 0xFFFF;
+    Muestra.Nivel_Bateria = 0xFFFF;
 
     //Lectura Sensores
     do
@@ -120,7 +120,7 @@ SENSORES Tomar_Muestra_Sensores()
         ADC_Detiene();
         Reintentos++;
     }
-    while(((Muestra.Temperatura==0xFFFFFFFF)||(Muestra.Pluviometria==0xFFFFFFFF)||(Muestra.Vel_Aire==0xFFFFFFFF)||(Muestra.Nivel_Bateria==0xFFFFFFFF))&&(Reintentos<3));
+    while(((Muestra.Temperatura==0xFFFF)||(Muestra.Pluviometria==0xFFFF)||(Muestra.Vel_Aire==0xFFFF)||(Muestra.Nivel_Bateria==0xFFFF))&&(Reintentos<3));
 
     return Muestra;
 }
@@ -266,7 +266,7 @@ BOOL Lectura_Sensores_Guarda_Muestra_EEPROM()
 
     //Lectura de Sensores con el conversor A/D
     Muestra = Tomar_Muestra_Sensores();
-    if((Muestra.Temperatura==0xFFFFFFFF)||(Muestra.Pluviometria==0xFFFFFFFF)||(Muestra.Vel_Aire==0xFFFFFFFF)||(Muestra.Nivel_Bateria==0xFFFFFFFF)){return FALSE;}
+    if((Muestra.Temperatura==0xFFFF)||(Muestra.Pluviometria==0xFFFF)||(Muestra.Vel_Aire==0xFFFF)||(Muestra.Nivel_Bateria==0xFFFF)){return FALSE;}
 
     //Obtenemos la dirección a escribir
     Direccion = Siguiente_Direccion_Libre_EEPROM();

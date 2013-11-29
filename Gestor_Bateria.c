@@ -55,7 +55,7 @@ NIVEL_BATERIA Comprobacion_Estado_Bateria()
     BYTE Reintentos = 0;
 
     //Inicializamos variable Muestra
-    Muestra.Nivel_Bateria = 0xFFFFFFFF;
+    Muestra.Nivel_Bateria = 0xFFFF;
 
     //Lectura Sensores
     do
@@ -66,7 +66,7 @@ NIVEL_BATERIA Comprobacion_Estado_Bateria()
         ADC_Detiene();
         Reintentos++;
     }
-    while((Muestra.Nivel_Bateria==0xFFFFFFFF)&&(Reintentos<3));
+    while((Muestra.Nivel_Bateria==0xFFFF)&&(Reintentos<3));
 
     if(Muestra.Nivel_Bateria<=1000)
     {

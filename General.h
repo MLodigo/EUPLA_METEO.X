@@ -138,10 +138,10 @@ typedef union _DWORD_VAL
 //Tipo definido para almacenar las señales meteorológicas que se van a muestrear
 typedef struct
 {
-    DWORD    Pluviometria;
-    DWORD    Temperatura;
-    DWORD    Vel_Aire;
-    DWORD    Nivel_Bateria;
+    WORD    Pluviometria;
+    WORD    Temperatura;
+    WORD    Vel_Aire;
+    WORD    Nivel_Bateria;
 }SENSORES;
 
 #endif
