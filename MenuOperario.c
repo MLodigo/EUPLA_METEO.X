@@ -305,10 +305,10 @@ BOOL Aplicar_Configuracion_Fabrica()
     EEPROM_WriteByte(0x35, DIR_TLF_ALARMA + 8);
 
     //Número de PIN de la tarjeta SIM del modem
-    EEPROM_WriteByte(0x35, DIR_PIN_SIM_MODEM);
-    EEPROM_WriteByte(0x37, DIR_PIN_SIM_MODEM + 1);
-    EEPROM_WriteByte(0x30, DIR_PIN_SIM_MODEM + 2);
-    EEPROM_WriteByte(0x35, DIR_PIN_SIM_MODEM + 3);
+    EEPROM_WriteByte(0x38, DIR_PIN_SIM_MODEM);
+    EEPROM_WriteByte(0x31, DIR_PIN_SIM_MODEM + 1);
+    EEPROM_WriteByte(0x38, DIR_PIN_SIM_MODEM + 2);
+    EEPROM_WriteByte(0x39, DIR_PIN_SIM_MODEM + 3);
 
     return TRUE;
 }
@@ -504,8 +504,8 @@ void Eje_Config_Envio_SMS_Alarma(void)
     do
     {
        //Mostramos en el display el valor actual de minutos de intérvalo de muestra
-       if(Estado_Activacion == 0x01){ sprintf(StrValor,"<ACTIVADO>"); }
-       if(Estado_Activacion == 0x00){ sprintf(StrValor,"<DESACTIVADO>"); }
+       if(Estado_Activacion == ENVIOS_SMS_ACTIVADO){ sprintf(StrValor,"<ACTIVADO>"); }
+       if(Estado_Activacion == ENVIOS_SMS_DESACTIVADO){ sprintf(StrValor,"<DESACTIVADO>"); }
        LCD_WriteLinea(LCD_LINEA2, StrValor );
 
        Actualiza_Estado_Switches();
@@ -928,19 +928,8 @@ void Eje_Reset_Fabrica(void)
 //********************************************************************************************************************
 void Eje_Envio_Mem_UART(void)
 {
-    WORD cntDireccion=0;
-
     LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Enviando...  ");
-
-    //Habilitamos la UART
-    UART2_Configura_Abre();
-
-    //Lectura de cada uno de los datos de la memoria y envío por la UART
-    for(cntDireccion=0x00; cntDireccion<TAM_MEMORIA_EEPROM; cntDireccion++)
-    {
-        UART2_Envia_Byte(EEPROM_ReadByte(cntDireccion));
-    }
-
+    Envio_Memoria_UART();
     LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"OK!");
     Inicia_Temporizacion();
     Retardo(2000);

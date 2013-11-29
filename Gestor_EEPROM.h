@@ -18,10 +18,10 @@
 #define DIR_TLF_ALARMA                  0x000A
 #define DIR_PIN_SIM_MODEM               0x0013
 
-#define NUM_MAX_MEDIDAS                 8000
-#define DIR_BASE_MEDIDAS                0x0300
-#define BYTES_POR_MEDIDA                4
-#define TAM_MEMORIA_EEPROM              0x8000
+#define NUM_MAX_MEDIDAS                 2461        //32000 / 13 = 2461 * BYTES_POR_MEDIDA = 31993 bytes
+#define DIR_BASE_MEDIDAS                0x0300      //TAM_MEMORIA_EEPROM - DIR_BASE_MEDIDAS = 32000 bytes para guardar medidas
+#define BYTES_POR_MEDIDA                13          //DDMMYYHHMMTTTTPPPPVVVVBBBB --> Fecha,Hora,Temp,Pluv,Vel.Air,Batt.
+#define TAM_MEMORIA_EEPROM              32768       //25LC256 -- 256 Kbits -- 32 Kbytes -- 32768 bytes
 
 //////////////////////////////////////////////////////////////
 //TIPOS DEFINIDOS Y ESTRUCTURAS
