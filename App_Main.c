@@ -1,6 +1,9 @@
 #include "App_Main.h"
 #include "Temporizacion.h"
 #include "PMP_LCD.h"
+
+
+#include "SPI_EEPROM.h"
 #include "Gestor_EEPROM.h"
 #include "Switches.h"
 #include "leds.h"
@@ -31,6 +34,7 @@ void Procesa_Reset_No_Controlado(void);
 void Procesa_Evento_UART(void);
 void Procesa_Evento_Sensores_Bateria(void);
 void Ejecuta_Peticion_Recibida(char * Comando);
+void Muestra_Ultima_Muestra_LCD(void);
 
 //********************************************************************************************************************
 //Función que muestra en el display el mensaje inicial al arrancar el sistema.
@@ -176,6 +180,9 @@ void Procesa_Evento_Sensores_Bateria()
            //Incrementamos el número de muestras tomadas
            Inc_CNT_Muestras_Tomadas();
 
+           //Presentación en display de la última muestra tomada
+           Muestra_Ultima_Muestra_LCD();
+
            //Comprobación si corresponde enviar las muestras via modem.
            if(Si_Realizar_Envio_Muestras_Modem())
            {
@@ -190,6 +197,163 @@ void Procesa_Evento_Sensores_Bateria()
     }
 }
 
+//********************************************************************************************************************
+//Función que realiza la lectura de la última muestra tomada en EEPROM y la visualiza en el display LCD.
+//********************************************************************************************************************
+void Muestra_Ultima_Muestra_LCD()
+{
+    WORD_VAL Dato;
+    WORD CNT_Muestras_Tomadas = 0;
+    WORD Direccion = 0;
+    SENSORES Muestra;
+    unsigned char Informacion[16];
+    unsigned char Info_LCD_LineaUP[16];
+    unsigned char Info_LCD_LineaDW[16];
+    unsigned char * Puntero;
+    BYTE i=0;
+
+    //Inicialización de los array LCD
+    for(i=0; i<16; i++)
+    {
+        Info_LCD_LineaUP[i]= ' ';
+        Info_LCD_LineaDW[i]= ' ';
+    }
+
+    //Cálculo de la dirección de la última muestra tomada
+    CNT_Muestras_Tomadas = Read_CNT_Muestras_Tomadas();
+    if(CNT_Muestras_Tomadas == 0xFFFF){return;}
+    Direccion = ((CNT_Muestras_Tomadas * 8) + DIR_BASE_MEDIDAS)- 8;
+
+    //Lectura en EEPROM de la última medida tomaada
+    //Temperatura
+    Dato.byte.HB = EEPROM_ReadByte(Direccion+1);
+    Dato.byte.LB = EEPROM_ReadByte(Direccion);
+    Muestra.Temperatura = Dato.Val;
+    //Pluviometría
+    Dato.byte.HB = EEPROM_ReadByte(Direccion+3);
+    Dato.byte.LB = EEPROM_ReadByte(Direccion+2);
+    Muestra.Pluviometria = Dato.Val;
+    //Velocidad Aire
+    Dato.byte.HB = EEPROM_ReadByte(Direccion+5);
+    Dato.byte.LB = EEPROM_ReadByte(Direccion+4);
+    Muestra.Vel_Aire = Dato.Val;
+    //Nivel batería
+    Dato.byte.HB = EEPROM_ReadByte(Direccion+7);
+    Dato.byte.LB = EEPROM_ReadByte(Direccion+6);
+    Muestra.Nivel_Bateria = Dato.Val;
+
+    //Montaje de la información para mostrarlo en el display LCD
+    Puntero = Info_LCD_LineaUP;
+    //Temperatura
+    *Puntero = (unsigned char)'T';
+    Puntero++;
+    *Puntero = (unsigned char)':';
+    Puntero++;
+    sprintf(Informacion, "%d", Muestra.Temperatura);
+    for(i=0; i<16; i++)
+    {
+        if(Informacion[i]!='\0')
+        {
+            *Puntero = (unsigned char)Informacion[i];
+            Puntero++;
+        }
+        else
+        {
+            *Puntero = *(Puntero-1);
+            *(Puntero-1) = '.';
+            Puntero++;
+            break;
+        }
+    }
+    *Puntero = (unsigned char)'c';
+    Puntero++;
+    //Ajuste de la cadena para que no aparezcan desplazados en caso de variar el nº de cifras
+    //Todos datos son como máximo de 3 cifras.
+    for(i=i; i<3; i++)
+    {
+        *Puntero = (unsigned char)' ';
+        Puntero++;
+    }
+
+    //Pluviometria
+    *Puntero = (unsigned char)' ';
+    Puntero++;
+    *Puntero = (unsigned char)' ';
+    Puntero++;
+    *Puntero = (unsigned char)'P';
+    Puntero++;
+    *Puntero = (unsigned char)':';
+    Puntero++;
+    sprintf(Informacion, "%d", Muestra.Pluviometria);
+    for(i=0; i<16; i++)
+    {
+        if(Informacion[i]!='\0')
+        {
+            *Puntero = (unsigned char)Informacion[i];
+            Puntero++;
+        }
+        else{break;}
+    }
+    *Puntero = (unsigned char)'m';
+    Puntero++;
+    *Puntero = (unsigned char)'m';
+    Puntero++;
+
+    //Vel.Aire
+    Puntero = Info_LCD_LineaDW;
+    *Puntero = (unsigned char)'V';
+    Puntero++;
+    *Puntero = (unsigned char)':';
+    Puntero++;
+    sprintf(Informacion, "%d", Muestra.Vel_Aire);
+    for(i=0; i<16; i++)
+    {
+        if(Informacion[i]!='\0')
+        {
+            *Puntero = (unsigned char)Informacion[i];
+            Puntero++;
+        }
+        else{break;}
+    }
+    *Puntero = (unsigned char)'k';
+    Puntero++;
+    *Puntero = (unsigned char)'m';
+    Puntero++;
+    *Puntero = (unsigned char)'h';
+    Puntero++;
+    //Ajuste de la cadena para que no aparezcan desplazados en caso de variar el nº de cifras
+    //Todos datos son como máximo de 3 cifras.
+    for(i=i; i<3; i++)
+    {
+        *Puntero = (unsigned char)' ';
+        Puntero++;
+    }
+
+    //Nivel batería
+    *Puntero = (unsigned char)' ';
+    Puntero++;
+    *Puntero = (unsigned char)'B';
+    Puntero++;
+    *Puntero = (unsigned char)':';
+    Puntero++;
+    sprintf(Informacion, "%d", Muestra.Nivel_Bateria);
+    for(i=0; i<16; i++)
+    {
+        if(Informacion[i]!='\0')
+        {
+            *Puntero = (unsigned char)Informacion[i];
+            Puntero++;
+        }
+        else{break;}
+    }
+    *Puntero = (unsigned char)'%';
+
+    LCD_Clear();
+    LCD_WriteLinea(LCD_LINEA1, Info_LCD_LineaUP);
+    LCD_WriteLinea(LCD_LINEA2, Info_LCD_LineaDW);
+    Retardo(10000);
+
+}
 //********************************************************************************************************************
 //********************************************************************************************************************
 //                                                METODOS PUBLICOS

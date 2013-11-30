@@ -32,7 +32,7 @@ void Actualiza_Sensores(void) {
     Resultado /=  1024;
     Resultado -=  500;
     Resultado /=  10;
-    Resultado -= 6;             //Ajuste
+    Resultado -= 5;             //Ajuste
     Resultado *= 10;            //Décimas de grado
     Sensores.Temperatura = (WORD)Resultado;
 
