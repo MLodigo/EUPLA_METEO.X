@@ -1,8 +1,7 @@
+#include <stdio.h>
 #include "App_Main.h"
 #include "Temporizacion.h"
 #include "PMP_LCD.h"
-
-
 #include "SPI_EEPROM.h"
 #include "Gestor_EEPROM.h"
 #include "Switches.h"
@@ -206,7 +205,7 @@ void Muestra_Ultima_Muestra_LCD()
     WORD CNT_Muestras_Tomadas = 0;
     WORD Direccion = 0;
     SENSORES Muestra;
-    unsigned char Informacion[16];
+    char Informacion[16];
     unsigned char Info_LCD_LineaUP[16];
     unsigned char Info_LCD_LineaDW[16];
     unsigned char * Puntero;
@@ -245,9 +244,9 @@ void Muestra_Ultima_Muestra_LCD()
     //Montaje de la información para mostrarlo en el display LCD
     Puntero = Info_LCD_LineaUP;
     //Temperatura
-    *Puntero = (unsigned char)'T';
+    *Puntero = 'T';
     Puntero++;
-    *Puntero = (unsigned char)':';
+    *Puntero = ':';
     Puntero++;
     sprintf(Informacion, "%d", Muestra.Temperatura);
     for(i=0; i<16; i++)
@@ -265,24 +264,24 @@ void Muestra_Ultima_Muestra_LCD()
             break;
         }
     }
-    *Puntero = (unsigned char)'c';
+    *Puntero = 'c';
     Puntero++;
     //Ajuste de la cadena para que no aparezcan desplazados en caso de variar el nº de cifras
     //Todos datos son como máximo de 3 cifras.
     for(i=i; i<3; i++)
     {
-        *Puntero = (unsigned char)' ';
+        *Puntero = ' ';
         Puntero++;
     }
 
     //Pluviometria
-    *Puntero = (unsigned char)' ';
+    *Puntero = ' ';
     Puntero++;
-    *Puntero = (unsigned char)' ';
+    *Puntero = ' ';
     Puntero++;
-    *Puntero = (unsigned char)'P';
+    *Puntero = 'P';
     Puntero++;
-    *Puntero = (unsigned char)':';
+    *Puntero = ':';
     Puntero++;
     sprintf(Informacion, "%d", Muestra.Pluviometria);
     for(i=0; i<16; i++)
@@ -294,16 +293,16 @@ void Muestra_Ultima_Muestra_LCD()
         }
         else{break;}
     }
-    *Puntero = (unsigned char)'m';
+    *Puntero = 'm';
     Puntero++;
-    *Puntero = (unsigned char)'m';
+    *Puntero = 'm';
     Puntero++;
 
     //Vel.Aire
     Puntero = Info_LCD_LineaDW;
-    *Puntero = (unsigned char)'V';
+    *Puntero = 'V';
     Puntero++;
-    *Puntero = (unsigned char)':';
+    *Puntero = ':';
     Puntero++;
     sprintf(Informacion, "%d", Muestra.Vel_Aire);
     for(i=0; i<16; i++)
@@ -315,26 +314,26 @@ void Muestra_Ultima_Muestra_LCD()
         }
         else{break;}
     }
-    *Puntero = (unsigned char)'k';
+    *Puntero = 'k';
     Puntero++;
-    *Puntero = (unsigned char)'m';
+    *Puntero = 'm';
     Puntero++;
-    *Puntero = (unsigned char)'h';
+    *Puntero = 'h';
     Puntero++;
     //Ajuste de la cadena para que no aparezcan desplazados en caso de variar el nº de cifras
     //Todos datos son como máximo de 3 cifras.
     for(i=i; i<3; i++)
     {
-        *Puntero = (unsigned char)' ';
+        *Puntero = ' ';
         Puntero++;
     }
 
     //Nivel batería
-    *Puntero = (unsigned char)' ';
+    *Puntero = ' ';
     Puntero++;
-    *Puntero = (unsigned char)'B';
+    *Puntero = 'B';
     Puntero++;
-    *Puntero = (unsigned char)':';
+    *Puntero = ':';
     Puntero++;
     sprintf(Informacion, "%d", Muestra.Nivel_Bateria);
     for(i=0; i<16; i++)
@@ -346,7 +345,7 @@ void Muestra_Ultima_Muestra_LCD()
         }
         else{break;}
     }
-    *Puntero = (unsigned char)'%';
+    *Puntero = '%';
 
     LCD_Clear();
     LCD_WriteLinea(LCD_LINEA1, Info_LCD_LineaUP);

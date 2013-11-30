@@ -1,4 +1,5 @@
 #include <string.h>
+#include <stdio.h>
 #include "Menu.h"
 #include "MenuOperario.h"
 #include "SPI.h"
@@ -326,7 +327,7 @@ void Eje_Interv_Min_Muestras(void)
     BOOL Salir = FALSE;                 //Indica cuando se saldrá del menú
     BYTE Reintentos = 0;
     static BYTE Min_Interv = 0;
-    unsigned char StrValor[16];
+    char StrValor[16];
     WORD_VAL Despiertes;                 //Número de despiertes euqivalentes a programar
 
     //Se realiza una lectura sobre la memoria para mostrar el valor actual solamente la primera vez,
@@ -343,7 +344,7 @@ void Eje_Interv_Min_Muestras(void)
     {
        //Mostramos en el display el valor actual de minutos de intérvalo de muestra
        sprintf(StrValor,"MINUTOS: %d", Min_Interv);
-       LCD_WriteLinea(LCD_LINEA2, StrValor );
+       LCD_WriteLinea(LCD_LINEA2, (unsigned char*)StrValor );
 
        Actualiza_Estado_Switches();
 
@@ -412,7 +413,7 @@ void Eje_Interv_Envio_Muestras(void)
     BOOL Salir = FALSE;                 //Indica cuando se saldrá del menú
     BYTE Reintentos = 0;
     static WORD_VAL Interv_Envio;       //Recoge el número de muestras a acumular antes de efectuar un envío modem.
-    unsigned char StrValor[16];
+    char StrValor[16];
 
     //Se realiza una lectura sobre la memoria para mostrar el valor actual solamente la primera vez,
     //luego el caracter static de la variable almacenará el último valor
@@ -426,7 +427,7 @@ void Eje_Interv_Envio_Muestras(void)
     {
        //Mostramos en el display el valor actual de minutos de intérvalo de muestra
        sprintf(StrValor,"CANTIDAD: %d", Interv_Envio.Val);
-       LCD_WriteLinea(LCD_LINEA2, StrValor );
+       LCD_WriteLinea(LCD_LINEA2, (unsigned char*)StrValor );
 
        Actualiza_Estado_Switches();
 
@@ -491,7 +492,7 @@ void Eje_Config_Envio_SMS_Alarma(void)
     BOOL Salir = FALSE;                   //Indica cuando se saldrá del menú
     BYTE Reintentos = 0;
     static BYTE Estado_Activacion = 0xFF; //Indica el estado de la opción de envío de SMS. Inicializado a un valor sin interpretación.
-    unsigned char StrValor[16];
+    char StrValor[16];
 
     //Se realiza una lectura sobre la memoria para mostrar el valor actual solamente la primera vez,
     //luego el caracter static de la variable almacenará el último valor
@@ -506,7 +507,7 @@ void Eje_Config_Envio_SMS_Alarma(void)
        //Mostramos en el display el valor actual de minutos de intérvalo de muestra
        if(Estado_Activacion == ENVIOS_SMS_ACTIVADO){ sprintf(StrValor,"<ACTIVADO>"); }
        if(Estado_Activacion == ENVIOS_SMS_DESACTIVADO){ sprintf(StrValor,"<DESACTIVADO>"); }
-       LCD_WriteLinea(LCD_LINEA2, StrValor );
+       LCD_WriteLinea(LCD_LINEA2, (unsigned char*)StrValor );
 
        Actualiza_Estado_Switches();
 
@@ -583,7 +584,7 @@ void Eje_Config_Tlf_Envio_SMS_Alarma(void)
     else
     {
         LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"000000000");
-        *NumTlf = "000000000";
+        *NumTlf = (unsigned char)"000000000";
     }
 
     //Bucle de selección mediante switches
@@ -740,7 +741,7 @@ void Eje_Config_PIN_SIM(void)
     else
     {
         LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"0000");
-        *NumPIN = "0000";
+        *NumPIN = (unsigned char)"0000";
     }
 
     //Bucle de selección mediante switches
@@ -878,7 +879,7 @@ void Eje_Config_PIN_SIM(void)
 void Eje_Estado_Sistema(void)
 {
    BYTE Estado_Sistema = 0xFF;    //Indica el estado del sistema
-   unsigned char StrValor[16];
+   char StrValor[16];
     
    //Lectura de la posción que recoge el estado del sistema
    Read_Estado_Sistema(&Estado_Sistema);
@@ -897,7 +898,7 @@ void Eje_Estado_Sistema(void)
        sprintf(StrValor,"<DESCONOCIDO>");
    }
 
-   LCD_WriteLinea(LCD_LINEA2, StrValor );
+   LCD_WriteLinea(LCD_LINEA2, (unsigned char*)StrValor );
    Inicia_Temporizacion();
    Retardo(2000);
     
