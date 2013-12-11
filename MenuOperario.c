@@ -281,8 +281,8 @@ BOOL Aplicar_Configuracion_Fabrica()
     EEPROM_WriteByte(Dato.byte.LB, DIR_DESPIERTES_POR_MEDIDA);
     EEPROM_WriteByte(Dato.byte.HB, DIR_DESPIERTES_POR_MEDIDA+1);
 
-    //Cantidad de muestras que deben haberse tomado, para realizar el envío via modem (Cada 10 muestras)
-    Dato.Val=10;
+    //Cantidad de muestras que deben haberse tomado, para realizar el envío via modem (Cada 1 muestra)
+    Dato.Val=1;
     EEPROM_WriteByte(Dato.byte.LB, DIR_MUESTRAS_POR_ENVIO_MODEM);
     EEPROM_WriteByte(Dato.byte.HB, DIR_MUESTRAS_POR_ENVIO_MODEM+1);
 
