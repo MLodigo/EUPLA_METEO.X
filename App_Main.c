@@ -142,17 +142,38 @@ void Procesa_Evento_Sensores_Bateria()
     //Preparación de la comunicación con la memoria
     Inicializacion_Modulo_EEPROM();
 
-    //Si el sistema está en modo recuperación de la batería, volvemos a comprobar el nivel para ver si se vuelve a modo normal de trabajo.
+    //Se revisa el nivel de la batería
+    NIVEL_BATERIA Nivel = Comprobacion_Estado_Bateria();
+
+    //Si la batería está a nivel mínimo, entramos en modo recuperación
+    if(Nivel == NIVEL_BAJO)
+    {
+       Activar_Modo_Recuperacion();
+       LEDs_ON;
+       LCD_Clear();
+       LCD_WriteLinea(LCD_LINEA1, (unsigned char*)"Batería Baja!   ");
+       LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Recuperacion ON ");
+       Retardo(1500);
+    }
+
+    //Si el sistema está en modo recuperación de la batería, comprobamos si se vuelve a modo normal de trabajo.
     if(Si_En_Modo_Recuperacion())
     {
-        if(Comprobacion_Estado_Bateria()== NIVEL_BAJO)
+        if(Nivel < NIVEL_MEDIO_ALTO)
         {
-            LEDs_ON;
-            Retardo(100);
+           LEDs_ON;
+           LCD_Clear();
+           LCD_WriteLinea(LCD_LINEA1, (unsigned char*)"Recuperando...  ");
+           LCD_WriteLinea(LCD_LINEA2, Porcentaje_Nivel_Bateria(Nivel));
+           Retardo(1500);
         }
         else
         {
-            Desactivar_Modo_Recuperacion();
+           Desactivar_Modo_Recuperacion();
+           LCD_Clear();
+           LCD_WriteLinea(LCD_LINEA1, (unsigned char*)"Recuperado..!   ");
+           LCD_WriteLinea(LCD_LINEA2, Porcentaje_Nivel_Bateria(Nivel));
+           Retardo(1500);
         }
     }
     else
@@ -216,12 +237,14 @@ void Procesa_Evento_Sensores_Bateria()
            //Comprobación si corresponde enviar las muestras via modem.
            if((EEPROM_Llena)||(Si_Realizar_Envio_Muestras_Modem()))
            {
+               MODEM_ON;
                LCD_Clear();
                LCD_WriteLinea(LCD_LINEA1, (unsigned char*)"MODEM HABILITADO");
                LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Enviando Datos..");
                Retardo(1000);
                Enviar_Muestras_Modem();
                Reset_CNT_Muestras_Tomadas();
+               MODEM_OFF;
            }
         }
     }
@@ -383,8 +406,9 @@ void Inicializa_Sistema(void)
     Rtcc_Configuracion_FechaHora_Reloj(&FechaHoraReloj);
     Rtcc_Activacion();  //Activación del reloj. Habilita tambien la interrupción
 
-    //Activación del modem
-    MODEM_ON;
+    //Desactivación del modem. La estrategia será que se activará solamente cuando se envíen
+    //las medidas al servidor.
+    MODEM_OFF;
 
     //Deshabilitar módulos no utilizados. Eliminar consumo innecesario.
     _SPI1MD = TRUE;     //SPI 1

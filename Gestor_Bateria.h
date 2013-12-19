@@ -38,5 +38,6 @@ BOOL Si_En_Modo_Recuperacion(void);
 NIVEL_BATERIA Comprobacion_Estado_Bateria(void);
 BOOL Activar_Modo_Recuperacion(void);
 BOOL Desactivar_Modo_Recuperacion(void);
+unsigned char* Porcentaje_Nivel_Bateria(NIVEL_BATERIA);
 
 #endif

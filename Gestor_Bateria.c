@@ -3,7 +3,6 @@
 #include "Gestor_EEPROM.h"
 #include "SPI_EEPROM.h"
 #include "ADC.h"
-#include "Rele.h"
 
 
 //********************************************************************************************************************
@@ -113,14 +112,12 @@ BOOL Activar_Modo_Recuperacion()
     }
     else
     {
-        //Apagado de la alimentación del modem
-        MODEM_OFF;
         return TRUE;
     }
 }
 
 //********************************************************************************************************************
-//Función que pne al sistema del modo normal de funcionamiento.
+//Función que pone al sistema del modo normal de funcionamiento.
 //Acciones: Conexión del modem.
 //********************************************************************************************************************
 BOOL Desactivar_Modo_Recuperacion()
@@ -142,8 +139,34 @@ BOOL Desactivar_Modo_Recuperacion()
     }
     else
     {
-        //Conexión de la alimentación del modem
-        MODEM_ON;
         return TRUE;
+    }
+}
+
+//********************************************************************************************************************
+//Función que devuelve una cadena para mostrarse en una línea del display LCD
+//indicando el nivel actual de la batería
+//********************************************************************************************************************
+unsigned char* Porcentaje_Nivel_Bateria(NIVEL_BATERIA nivel)
+{
+    if(nivel == NIVEL_BAJO)
+    {
+        return (unsigned char*) "Bateria: 20%    ";
+    }
+    else if(nivel == NIVEL_MEDIO_BAJO)
+    {
+        return (unsigned char*) "Bateria: 40%    ";
+    }
+    else if(nivel == NIVEL_MEDIO)
+    {
+        return (unsigned char*) "Bateria: 60%    ";
+    }
+    else if(nivel == NIVEL_MEDIO_ALTO)
+    {
+        return (unsigned char*) "Bateria: 80%    ";
+    }
+    else if(nivel == NIVEL_ALTO)
+    {
+        return (unsigned char*) "Bateria: 95%    ";
     }
 }
