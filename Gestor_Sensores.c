@@ -4,6 +4,7 @@
 #include "ADC.h"
 #include "UART.h"
 #include "Reloj_RTCC.h"
+#include "SPI_EEPROM.h"
 
 /*NOTAS:
 
@@ -23,38 +24,10 @@
 //********************************************************************************************************************
 
 //Prototipos
-WORD Siguiente_Direccion_Libre_EEPROM();
 WORD Read_CNT_Despiertes();
 WORD Read_Despiertes_MAX();
-SENSORES Tomar_Muestra_Sensores();
 WORD Read_CNT_Muestras_Tomadas();
 WORD Read_Muestras_MAX_Envio_Modem();
-
-//********************************************************************************************************************
-//Función que obtiene la siguiente dirección sobre la que se escribirá la siguiente muestra que se tome.
-//Se calcula en base al número de muestras tomadas, el tamaño de cada muestra y la direccion de comienzo de
-//la zona de almacenamiento de muestras en la memoria EEPROM.
-//********************************************************************************************************************
-WORD Siguiente_Direccion_Libre_EEPROM()
-{
-    WORD CNT_Muestras_Tomadas = 0;
-    WORD Direccion = 0;
-
-    //Lectura del contador
-    CNT_Muestras_Tomadas = Read_CNT_Muestras_Tomadas();
-
-    //Si el contador está a 0xFFFF, significa que la memoria fué inicializada y por tanto el valor del contador lo asignaremos a 0.
-    if(CNT_Muestras_Tomadas == 0xFFFF)
-    {
-        CNT_Muestras_Tomadas = 0;
-    }
-
-    //Cálculo de la siguiente dirección libre
-    Direccion = (CNT_Muestras_Tomadas *8) + DIR_BASE_MEDIDAS;
-
-    //Resultado
-    return Direccion;
-}
 
 //********************************************************************************************************************
 //Función que obtiene el valor actual del contador de despiertes llevados a cabo por el micro.
@@ -95,34 +68,6 @@ WORD Read_Despiertes_MAX()
     }
 
     return Resultado.Val;
-}
-
-//********************************************************************************************************************
-//Función que se apoya en el conversor A/D para realizar un barrido a los sensores y obtener las medidas de cada uno.
-//********************************************************************************************************************
-SENSORES Tomar_Muestra_Sensores()
-{
-    SENSORES Muestra;
-    BYTE Reintentos = 0;
-
-    //Inicializamos variable Muestra
-    Muestra.Temperatura = 0xFFFF;
-    Muestra.Pluviometria = 0xFFFF;
-    Muestra.Vel_Aire = 0xFFFF;
-    Muestra.Nivel_Bateria = 0xFFFF;
-
-    //Lectura Sensores
-    do
-    {
-        ADC_Configura_Inicia();
-        while(!ADC_HayNuevaMedida());
-        Muestra = ADC_Lectura_Sensores();
-        ADC_Detiene();
-        Reintentos++;
-    }
-    while(((Muestra.Temperatura==0xFFFF)||(Muestra.Pluviometria==0xFFFF)||(Muestra.Vel_Aire==0xFFFF)||(Muestra.Nivel_Bateria==0xFFFF))&&(Reintentos<3));
-
-    return Muestra;
 }
 
 //********************************************************************************************************************
@@ -172,6 +117,179 @@ WORD Read_Muestras_MAX_Envio_Modem()
 //                                                METODOS PUBLICOS
 //********************************************************************************************************************
 //********************************************************************************************************************
+
+//********************************************************************************************************************
+//Función que obtiene la siguiente dirección sobre la que se escribirá la siguiente muestra que se tome.
+//Se calcula en base al número de muestras tomadas, el tamaño de cada muestra y la direccion de comienzo de
+//la zona de almacenamiento de muestras en la memoria EEPROM.
+//********************************************************************************************************************
+WORD Siguiente_Direccion_Libre_EEPROM()
+{
+    //WORD_VAL CNT_Muestras_MAX_Por_Envio;
+    WORD CNT_Muestras_Tomadas = 0;
+    WORD Direccion = 0;
+
+    //Lectura del contador
+    CNT_Muestras_Tomadas = Read_CNT_Muestras_Tomadas();
+
+    //Si el contador está a 0xFFFF, significa que la memoria fué inicializada y por tanto el valor del contador lo asignaremos a 0.
+    if(CNT_Muestras_Tomadas == 0xFFFF)
+    {
+        CNT_Muestras_Tomadas = 0;
+    }
+
+    //Cálculo de la siguiente dirección libre
+    Direccion = (CNT_Muestras_Tomadas * BYTES_POR_MEDIDA) + DIR_BASE_MEDIDAS;
+
+    //Resultado
+    return Direccion;
+}
+
+//********************************************************************************************************************
+//Función que se apoya en el conversor A/D para realizar un barrido a los sensores y obtener las medidas de cada uno.
+//********************************************************************************************************************
+//SENSORES Tomar_Muestra_Sensores()
+SENSORES Barrido_Sensores()
+{
+    SENSORES Muestra;
+    BYTE Reintentos = 0;
+
+    //Inicializamos variable Muestra
+    Muestra.Temperatura = 0xFFFF;
+    Muestra.Pluviometria = 0xFFFF;
+    Muestra.Vel_Aire = 0xFFFF;
+    Muestra.Nivel_Bateria = 0xFFFF;
+
+    //Lectura Sensores
+    do
+    {
+        ADC_Configura_Inicia();
+        while(!ADC_HayNuevaMedida());
+        Muestra = ADC_Lectura_Sensores();
+        ADC_Detiene();
+        Reintentos++;
+    }
+    while(((Muestra.Temperatura==0xFFFF)||(Muestra.Pluviometria==0xFFFF)||(Muestra.Vel_Aire==0xFFFF)||(Muestra.Nivel_Bateria==0xFFFF))&&(Reintentos<3));
+
+    return Muestra;
+}
+
+//********************************************************************************************************************
+//Función que realiza el guardado de la muestra pasada como argumento, en la dirección indicada.
+//Se guarda el timestamp asociado a la muestra.
+//********************************************************************************************************************
+BOOL Guarda_Muestra_EEPROM(SENSORES Muestra, WORD Direccion)
+{
+    WORD_VAL Medida;
+    BYTE Reintentos = 0;
+    BYTE Suma = 0;
+
+    //Escritura de la TIMESTAMP///////////////////////
+    rtccFechaHora FechaHoraReloj = Lectura_FechaHora_Reloj();
+    Reintentos = 0;
+    do
+    {
+        EEPROM_WriteByte(FechaHoraReloj.f.DiaMes, Direccion);
+        EEPROM_WriteByte(FechaHoraReloj.f.Mes, Direccion+1);
+        EEPROM_WriteByte(FechaHoraReloj.f.Ano, Direccion+2);
+        EEPROM_WriteByte(FechaHoraReloj.f.Hora, Direccion+3);
+        EEPROM_WriteByte(FechaHoraReloj.f.Minutos, Direccion+4);
+        Reintentos++;
+    }
+    while(((EEPROM_ReadByte(Direccion)!=FechaHoraReloj.f.DiaMes)||(EEPROM_ReadByte(Direccion+1)!=FechaHoraReloj.f.Mes)||
+           (EEPROM_ReadByte(Direccion+2)!=FechaHoraReloj.f.Ano)||(EEPROM_ReadByte(Direccion+3)!=FechaHoraReloj.f.Hora)||
+           (EEPROM_ReadByte(Direccion+4)!=FechaHoraReloj.f.Minutos))&&(Reintentos<3));
+    //Si no se realizó correctamente, salimos.
+    if(Reintentos==3){return FALSE;}
+
+
+    //Escritura de la TEMPERATURA///////////////////////
+    Reintentos = 0;
+    do
+    {
+        Medida.Val = (WORD)Muestra.Temperatura;
+        EEPROM_WriteByte(Medida.byte.LB, Direccion+5);
+        EEPROM_WriteByte(Medida.byte.HB, Direccion+6);
+        Reintentos++;
+    }
+    while(((EEPROM_ReadByte(Direccion+5)!=Medida.byte.LB)||(EEPROM_ReadByte(Direccion+6)!=Medida.byte.HB))&&(Reintentos<3));
+    //Si no se realizó correctamente, salimos.
+    if(Reintentos==3){return FALSE;}
+
+    //Escritura de la PLUVIOMETRIA/////////////////////
+    Reintentos = 0;
+    do
+    {
+        Medida.Val = (WORD)Muestra.Pluviometria;
+        EEPROM_WriteByte(Medida.byte.LB, Direccion+7);
+        EEPROM_WriteByte(Medida.byte.HB, Direccion+8);
+        Reintentos++;
+    }
+    while(((EEPROM_ReadByte(Direccion+7)!=Medida.byte.LB)||(EEPROM_ReadByte(Direccion+8)!=Medida.byte.HB))&&(Reintentos<3));
+    //Si no se realizó correctamente, salimos.
+    if(Reintentos==3){return FALSE;}
+
+    //Escritura de la VELOCIDAD DEL AIRE///////////////
+    Reintentos = 0;
+    do
+    {
+        Medida.Val = (WORD)Muestra.Vel_Aire;
+        EEPROM_WriteByte(Medida.byte.LB, Direccion+9);
+        EEPROM_WriteByte(Medida.byte.HB, Direccion+10);
+        Reintentos++;
+    }
+    while(((EEPROM_ReadByte(Direccion+9)!=Medida.byte.LB)||(EEPROM_ReadByte(Direccion+10)!=Medida.byte.HB))&&(Reintentos<3));
+    //Si no se realizó correctamente, salimos.
+    if(Reintentos==3){return FALSE;}
+
+    //Escritura del NIVEL DEL LA BATERIA///////////////
+    Reintentos = 0;
+    do
+    {
+        Medida.Val = (WORD)Muestra.Nivel_Bateria;
+        EEPROM_WriteByte(Medida.byte.LB, Direccion+11);
+        EEPROM_WriteByte(Medida.byte.HB, Direccion+12);
+        Reintentos++;
+    }
+    while(((EEPROM_ReadByte(Direccion+11)!=Medida.byte.LB)||(EEPROM_ReadByte(Direccion+12)!=Medida.byte.HB))&&(Reintentos<3));
+    //Si no se realizó correctamente, salimos.
+    if(Reintentos==3){return FALSE;}
+
+    //CHECKSUM: DDMMYYHHMMTTTTPPPPVVVVBBBB + CHK
+    Suma += FechaHoraReloj.f.DiaMes;
+    Suma += FechaHoraReloj.f.Mes;
+    Suma += FechaHoraReloj.f.Ano;
+    Suma += FechaHoraReloj.f.Hora;
+    Suma += FechaHoraReloj.f.Minutos;
+    Medida.Val = (WORD)Muestra.Temperatura;
+    Suma += Medida.byte.HB;
+    Suma += Medida.byte.LB;
+    Medida.Val = (WORD)Muestra.Pluviometria;
+    Suma += Medida.byte.HB;
+    Suma += Medida.byte.LB;
+    Medida.Val = (WORD)Muestra.Vel_Aire;
+    Suma += Medida.byte.HB;
+    Suma += Medida.byte.LB;
+    Medida.Val = (WORD)Muestra.Nivel_Bateria;
+    Suma += Medida.byte.HB;
+    Suma += Medida.byte.LB;
+    //Checksum final
+    Suma = 0x100 - Suma;
+
+    //Escritura de la suma de comprobación CHECKSUM///////////////
+    Reintentos = 0;
+    do
+    {
+        EEPROM_WriteByte(Suma, Direccion+13);
+        Reintentos++;
+    }
+    while((EEPROM_ReadByte(Direccion+13)!=Suma)&&(Reintentos<3));
+    //Si no se realizó correctamente, salimos.
+    if(Reintentos==3){return FALSE;}
+
+    //Si se llegó aquí, es que todo el proceso fué correcto.
+    return TRUE;
+}
 
 //********************************************************************************************************************
 //Función que informa si ha llegado o no, el momento de hacer un barrido a los sensores con el objetivo de almacenar
@@ -251,81 +369,6 @@ RESPUESTA Si_Realizar_Envio_Muestras_Modem()
     {
         return NOK;
     }
-}
-
-//********************************************************************************************************************
-//Función que inicia un barrido de los sensores, y almacena el resultado (Muestra) en la memoria EEPROM.
-//********************************************************************************************************************
-BOOL Lectura_Sensores_Guarda_Muestra_EEPROM()
-{
-    SENSORES Muestra;
-    WORD_VAL Medida;
-    WORD Direccion = 0;
-    BYTE Reintentos = 0;
-
-
-    //Lectura de Sensores con el conversor A/D
-    Muestra = Tomar_Muestra_Sensores();
-    if((Muestra.Temperatura==0xFFFF)||(Muestra.Pluviometria==0xFFFF)||(Muestra.Vel_Aire==0xFFFF)||(Muestra.Nivel_Bateria==0xFFFF)){return FALSE;}
-
-    //Obtenemos la dirección a escribir
-    Direccion = Siguiente_Direccion_Libre_EEPROM();
-
-    //TODO: Guardado del TimeStamp
-    
-    //Escritura de la TEMPERATURA///////////////////////
-    Reintentos = 0;
-    do
-    {
-        Medida.Val = (WORD)Muestra.Temperatura;
-        EEPROM_WriteByte(Medida.byte.LB, Direccion);
-        EEPROM_WriteByte(Medida.byte.HB, Direccion+1);
-        Reintentos++;
-    }
-    while(((EEPROM_ReadByte(Direccion)!=Medida.byte.LB)||(EEPROM_ReadByte(Direccion+1)!=Medida.byte.HB))&&(Reintentos<3));
-    //Si no se realizó correctamente, salimos.
-    if(Reintentos==3){return FALSE;}
-
-    //Escritura de la PLUVIOMETRIA/////////////////////
-    Reintentos = 0;
-    do
-    {
-        Medida.Val = (WORD)Muestra.Pluviometria;
-        EEPROM_WriteByte(Medida.byte.LB, Direccion+2);
-        EEPROM_WriteByte(Medida.byte.HB, Direccion+3);
-        Reintentos++;
-    }
-    while(((EEPROM_ReadByte(Direccion+2)!=Medida.byte.LB)||(EEPROM_ReadByte(Direccion+3)!=Medida.byte.HB))&&(Reintentos<3));
-    //Si no se realizó correctamente, salimos.
-    if(Reintentos==3){return FALSE;}
-
-    //Escritura de la VELOCIDAD DEL AIRE///////////////
-    Reintentos = 0;
-    do
-    {
-        Medida.Val = (WORD)Muestra.Vel_Aire;
-        EEPROM_WriteByte(Medida.byte.LB, Direccion+4);
-        EEPROM_WriteByte(Medida.byte.HB, Direccion+5);
-        Reintentos++;
-    }
-    while(((EEPROM_ReadByte(Direccion+4)!=Medida.byte.LB)||(EEPROM_ReadByte(Direccion+5)!=Medida.byte.HB))&&(Reintentos<3));
-    //Si no se realizó correctamente, salimos.
-    if(Reintentos==3){return FALSE;}
-
-    //Escritura del NIVEL DEL LA BATERIA///////////////
-    Reintentos = 0;
-    do
-    {
-        Medida.Val = (WORD)Muestra.Nivel_Bateria;
-        EEPROM_WriteByte(Medida.byte.LB, Direccion+6);
-        EEPROM_WriteByte(Medida.byte.HB, Direccion+7);
-        Reintentos++;
-    }
-    while(((EEPROM_ReadByte(Direccion+6)!=Medida.byte.LB)||(EEPROM_ReadByte(Direccion+7)!=Medida.byte.HB))&&(Reintentos<3));
-    //Si no se realizó correctamente, salimos.
-    if(Reintentos==3){return FALSE;}
-
-    return TRUE;
 }
 
 //********************************************************************************************************************

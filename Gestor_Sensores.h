@@ -31,11 +31,13 @@
 //////////////////////////////////////////////////////////////
 RESPUESTA Si_Realizar_Medidas_Sensores();
 RESPUESTA Si_Realizar_Envio_Muestras_Modem();
-BOOL Lectura_Sensores_Guarda_Muestra_EEPROM();
 BOOL Enviar_Muestras_Modem();
 BOOL Inc_CNT_Despiertes();
 BOOL Inc_CNT_Muestras_Tomadas();
 BOOL Reset_CNT_Despiertes();
 BOOL Reset_CNT_Muestras_Tomadas();
+SENSORES Barrido_Sensores();
+WORD Siguiente_Direccion_Libre_EEPROM();
+BOOL Guarda_Muestra_EEPROM(SENSORES, WORD);
 
 #endif

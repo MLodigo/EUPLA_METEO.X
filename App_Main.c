@@ -33,7 +33,7 @@ void Procesa_Reset_No_Controlado(void);
 void Procesa_Evento_UART(void);
 void Procesa_Evento_Sensores_Bateria(void);
 void Ejecuta_Peticion_Recibida(char * Comando);
-void Muestra_Ultima_Muestra_LCD(void);
+void Visualiza_Ultima_Muestra_LCD(SENSORES);
 
 //********************************************************************************************************************
 //Función que muestra en el display el mensaje inicial al arrancar el sistema.
@@ -135,8 +135,10 @@ void Ejecuta_Peticion_Recibida(char * Comando)
 //********************************************************************************************************************
 void Procesa_Evento_Sensores_Bateria()
 {
-    BYTE Reintentos = 0;
-    
+    SENSORES Muestra;
+    WORD Dir_Sig_E2P_Libre = 0;
+    BOOL EEPROM_Llena = FALSE;
+
     //Preparación de la comunicación con la memoria
     Inicializacion_Modulo_EEPROM();
 
@@ -166,24 +168,53 @@ void Procesa_Evento_Sensores_Bateria()
            LCD_WriteLinea(LCD_LINEA1, (unsigned char*)"Muestreando     ");
            LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Sensores ON..   ");
            Retardo(1500);
-           Reintentos=0;
-           while((Lectura_Sensores_Guarda_Muestra_EEPROM()==FALSE)&&(Reintentos<3))
-           {
-               Reintentos++;
-           }
-           if(Reintentos==3){return;}
 
            //Contador de despiertes inicializado a cero.
            Reset_CNT_Despiertes();
 
-           //Incrementamos el número de muestras tomadas
-           Inc_CNT_Muestras_Tomadas();
+           //Inicialización de la variable
+           Muestra.Nivel_Bateria=0xFFFF;
+           Muestra.Pluviometria=0xFFFF;
+           Muestra.Temperatura=0xFFFF;
+           Muestra.Vel_Aire=0xFFFF;
 
-           //Presentación en display de la última muestra tomada
-           Muestra_Ultima_Muestra_LCD();
+           //Muestreo de sensores
+           Muestra = Barrido_Sensores();
+
+           //Comprobación de que la muestra se tomó correctamente.
+           if((Muestra.Nivel_Bateria == 0xFFFF)||(Muestra.Pluviometria == 0xFFFF)||(Muestra.Temperatura == 0xFFFF)||(Muestra.Vel_Aire == 0xFFFF))
+           {
+               LCD_Clear();
+               LCD_WriteLinea(LCD_LINEA1, (unsigned char*)"Error           ");
+               LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"de Muestreo..!  ");
+               Retardo(1500);
+               return;
+           }
+
+           //Obtenemos la siguiente dirección libre para ubicar la muestra en EEPROM
+           Dir_Sig_E2P_Libre = Siguiente_Direccion_Libre_EEPROM();
+
+           //Comprobación del rebase de la memoria. En caso de superarlo se ajusta a DIR_BASE_MEDIDAS.
+           if(Dir_Sig_E2P_Libre < (TAM_MEMORIA_EEPROM - BYTES_POR_MEDIDA))
+           {
+               //Guardado de la muestra en memoria
+               if(Guarda_Muestra_EEPROM(Muestra, Dir_Sig_E2P_Libre))
+               {
+                  //Incrementamos el número de muestras tomadas
+                  Inc_CNT_Muestras_Tomadas();
+               }
+
+               //Presentación en display de la última muestra tomada
+               Visualiza_Ultima_Muestra_LCD(Muestra);
+           }
+           //Si la memoria está llena de medidas, forzamos el envío al servidor.
+           else
+           {
+               EEPROM_Llena = TRUE;
+           }
 
            //Comprobación si corresponde enviar las muestras via modem.
-           if(Si_Realizar_Envio_Muestras_Modem())
+           if((EEPROM_Llena)||(Si_Realizar_Envio_Muestras_Modem()))
            {
                LCD_Clear();
                LCD_WriteLinea(LCD_LINEA1, (unsigned char*)"MODEM HABILITADO");
@@ -199,12 +230,8 @@ void Procesa_Evento_Sensores_Bateria()
 //********************************************************************************************************************
 //Función que realiza la lectura de la última muestra tomada en EEPROM y la visualiza en el display LCD.
 //********************************************************************************************************************
-void Muestra_Ultima_Muestra_LCD()
+void Visualiza_Ultima_Muestra_LCD(SENSORES Muestra)
 {
-    WORD_VAL Dato;
-    WORD CNT_Muestras_Tomadas = 0;
-    WORD Direccion = 0;
-    SENSORES Muestra;
     char Informacion[16];
     unsigned char Info_LCD_LineaUP[16];
     unsigned char Info_LCD_LineaDW[16];
@@ -217,29 +244,6 @@ void Muestra_Ultima_Muestra_LCD()
         Info_LCD_LineaUP[i]= ' ';
         Info_LCD_LineaDW[i]= ' ';
     }
-
-    //Cálculo de la dirección de la última muestra tomada
-    CNT_Muestras_Tomadas = Read_CNT_Muestras_Tomadas();
-    if(CNT_Muestras_Tomadas == 0xFFFF){return;}
-    Direccion = ((CNT_Muestras_Tomadas * 8) + DIR_BASE_MEDIDAS)- 8;
-
-    //Lectura en EEPROM de la última medida tomaada
-    //Temperatura
-    Dato.byte.HB = EEPROM_ReadByte(Direccion+1);
-    Dato.byte.LB = EEPROM_ReadByte(Direccion);
-    Muestra.Temperatura = Dato.Val;
-    //Pluviometría
-    Dato.byte.HB = EEPROM_ReadByte(Direccion+3);
-    Dato.byte.LB = EEPROM_ReadByte(Direccion+2);
-    Muestra.Pluviometria = Dato.Val;
-    //Velocidad Aire
-    Dato.byte.HB = EEPROM_ReadByte(Direccion+5);
-    Dato.byte.LB = EEPROM_ReadByte(Direccion+4);
-    Muestra.Vel_Aire = Dato.Val;
-    //Nivel batería
-    Dato.byte.HB = EEPROM_ReadByte(Direccion+7);
-    Dato.byte.LB = EEPROM_ReadByte(Direccion+6);
-    Muestra.Nivel_Bateria = Dato.Val;
 
     //Montaje de la información para mostrarlo en el display LCD
     Puntero = Info_LCD_LineaUP;
@@ -373,9 +377,9 @@ void Inicializa_Sistema(void)
     Rtcc_Inicializacion();        //Habilita el reloj secundario y coloca el reloj en reposo
     rtccFechaHora FechaHoraReloj;
     FechaHoraReloj.w[0] = 0x0013; //Anio
-    FechaHoraReloj.w[1] = 0x1121; //Mes - Dia
-    FechaHoraReloj.w[2] = 0x0300; //Dia Semana - Hora
-    FechaHoraReloj.w[3] = 0x2700; //Minutos - Segundos
+    FechaHoraReloj.w[1] = 0x1219; //Mes - Dia
+    FechaHoraReloj.w[2] = 0x0310; //Dia Semana - Hora (0-lunes, 1-martes..)
+    FechaHoraReloj.w[3] = 0x0000; //Minutos - Segundos
     Rtcc_Configuracion_FechaHora_Reloj(&FechaHoraReloj);
     Rtcc_Activacion();  //Activación del reloj. Habilita tambien la interrupción
 
