@@ -242,8 +242,10 @@ void Procesa_Evento_Sensores_Bateria()
                LCD_WriteLinea(LCD_LINEA1, (unsigned char*)"MODEM HABILITADO");
                LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Enviando Datos..");
                Retardo(1000);
-               Enviar_Muestras_Modem();
-               Reset_CNT_Muestras_Tomadas();
+               if(Enviar_Muestras_Modem())
+               {
+                   Reset_CNT_Muestras_Tomadas();
+               }
                MODEM_OFF;
            }
         }
@@ -400,9 +402,9 @@ void Inicializa_Sistema(void)
     Rtcc_Inicializacion();        //Habilita el reloj secundario y coloca el reloj en reposo
     rtccFechaHora FechaHoraReloj;
     FechaHoraReloj.w[0] = 0x0013; //Anio
-    FechaHoraReloj.w[1] = 0x1219; //Mes - Dia
-    FechaHoraReloj.w[2] = 0x0310; //Dia Semana - Hora (0-lunes, 1-martes..)
-    FechaHoraReloj.w[3] = 0x0000; //Minutos - Segundos
+    FechaHoraReloj.w[1] = 0x1223; //Mes - Dia
+    FechaHoraReloj.w[2] = 0x0012; //Dia Semana - Hora (0-lunes, 1-martes..)
+    FechaHoraReloj.w[3] = 0x4100; //Minutos - Segundos
     Rtcc_Configuracion_FechaHora_Reloj(&FechaHoraReloj);
     Rtcc_Activacion();  //Activación del reloj. Habilita tambien la interrupción
 

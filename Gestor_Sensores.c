@@ -5,6 +5,8 @@
 #include "UART.h"
 #include "Reloj_RTCC.h"
 #include "SPI_EEPROM.h"
+#include "string.h"
+#include <stdio.h>
 
 /*NOTAS:
 
@@ -28,6 +30,8 @@ WORD Read_CNT_Despiertes();
 WORD Read_Despiertes_MAX();
 WORD Read_CNT_Muestras_Tomadas();
 WORD Read_Muestras_MAX_Envio_Modem();
+void Formatear_Muestra_SvrSplunk(BYTE*,rtccFechaHora,SENSORES);
+BYTE Calcula_Cheksum_Muestra(rtccFechaHora, SENSORES);
 
 //********************************************************************************************************************
 //Función que obtiene el valor actual del contador de despiertes llevados a cabo por el micro.
@@ -111,6 +115,258 @@ WORD Read_Muestras_MAX_Envio_Modem()
     return Resultado.Val;
 }
 
+//********************************************************************************************************************
+//Función que devuelve una cadena formateada para enviar la muestra al servidor Splunk.
+//Ejemplo de resultado final: 2013-11-02 12:15:00,Temperatura=24.0c,Pluviometria=0mm,Vel_Aire=0km/h,Nivel_Bat=58%
+//********************************************************************************************************************
+void Formatear_Muestra_SvrSplunk(BYTE* ptrCadenaSplunk, rtccFechaHora timestamp, SENSORES muestra)
+{
+    char Informacion[16];
+    BYTE i=0;
+
+    *ptrCadenaSplunk = '2';
+    ptrCadenaSplunk ++;
+    *ptrCadenaSplunk = '0';
+    ptrCadenaSplunk ++;
+    *ptrCadenaSplunk = (BYTE)((((timestamp.f.Ano)&0xF0)>>4)+0x30);
+    ptrCadenaSplunk++;
+    *ptrCadenaSplunk = (BYTE)((timestamp.f.Ano&0x0F)+0x30);
+    ptrCadenaSplunk++;
+    *ptrCadenaSplunk = '-';
+    ptrCadenaSplunk++;
+    *ptrCadenaSplunk = (BYTE)((((timestamp.f.Mes)&0xF0)>>4)+0x30);
+    ptrCadenaSplunk++;
+    *ptrCadenaSplunk = (BYTE)((timestamp.f.Mes&0x0F)+0x30);
+    ptrCadenaSplunk++;
+    *ptrCadenaSplunk = '-';
+    ptrCadenaSplunk++;
+    *ptrCadenaSplunk = (BYTE)((((timestamp.f.DiaMes)&0xF0)>>4)+0x30);
+    ptrCadenaSplunk++;
+    *ptrCadenaSplunk = (BYTE)((timestamp.f.DiaMes&0x0F)+0x30);
+    ptrCadenaSplunk++;
+    *ptrCadenaSplunk = ' ';
+    ptrCadenaSplunk++;
+    *ptrCadenaSplunk = (BYTE)((((timestamp.f.Hora)&0xF0)>>4)+0x30);
+    ptrCadenaSplunk++;
+    *ptrCadenaSplunk = (BYTE)((timestamp.f.Hora&0x0F)+0x30);
+    ptrCadenaSplunk++;
+    *ptrCadenaSplunk = ':';
+    ptrCadenaSplunk++;
+    *ptrCadenaSplunk = (BYTE)((((timestamp.f.Minutos)&0xF0)>>4)+0x30);
+    ptrCadenaSplunk++;
+    *ptrCadenaSplunk = (BYTE)((timestamp.f.Minutos&0x0F)+0x30);
+    ptrCadenaSplunk++;
+    *ptrCadenaSplunk = ':';
+    ptrCadenaSplunk++;
+    *ptrCadenaSplunk = '0';
+    ptrCadenaSplunk ++;
+    *ptrCadenaSplunk = '0';
+    ptrCadenaSplunk ++;
+    *ptrCadenaSplunk = ',';
+    ptrCadenaSplunk ++;
+    *ptrCadenaSplunk = 'T';
+    ptrCadenaSplunk ++;
+    *ptrCadenaSplunk = 'e';
+    ptrCadenaSplunk ++;
+    *ptrCadenaSplunk = 'm';
+    ptrCadenaSplunk ++;
+    *ptrCadenaSplunk = 'p';
+    ptrCadenaSplunk ++;
+    *ptrCadenaSplunk = 'e';
+    ptrCadenaSplunk ++;
+    *ptrCadenaSplunk = 'r';
+    ptrCadenaSplunk ++;
+    *ptrCadenaSplunk = 'a';
+    ptrCadenaSplunk ++;
+    *ptrCadenaSplunk = 't';
+    ptrCadenaSplunk ++;
+    *ptrCadenaSplunk = 'u';
+    ptrCadenaSplunk ++;
+    *ptrCadenaSplunk = 'r';
+    ptrCadenaSplunk ++;
+    *ptrCadenaSplunk = 'a';
+    ptrCadenaSplunk ++;
+    *ptrCadenaSplunk = '=';
+    ptrCadenaSplunk ++;
+
+    sprintf(Informacion, "%d", muestra.Temperatura);
+    for(i=0; i<16; i++)
+    {
+        if(Informacion[i]!='\0')
+        {
+            *ptrCadenaSplunk = (unsigned char)Informacion[i];
+            ptrCadenaSplunk++;
+        }
+        else
+        {
+            *ptrCadenaSplunk = *(ptrCadenaSplunk-1);
+            *(ptrCadenaSplunk-1) = '.';
+            ptrCadenaSplunk++;
+            break;
+        }
+    }
+
+    *ptrCadenaSplunk = 'c';
+    ptrCadenaSplunk ++;
+    *ptrCadenaSplunk = ',';
+    ptrCadenaSplunk ++;
+    *ptrCadenaSplunk = 'P';
+    ptrCadenaSplunk ++;
+    *ptrCadenaSplunk = 'l';
+    ptrCadenaSplunk ++;
+    *ptrCadenaSplunk = 'u';
+    ptrCadenaSplunk ++;
+    *ptrCadenaSplunk = 'v';
+    ptrCadenaSplunk ++;
+    *ptrCadenaSplunk = 'i';
+    ptrCadenaSplunk ++;
+    *ptrCadenaSplunk = 'o';
+    ptrCadenaSplunk ++;
+    *ptrCadenaSplunk = 'm';
+    ptrCadenaSplunk ++;
+    *ptrCadenaSplunk = 'e';
+    ptrCadenaSplunk ++;
+    *ptrCadenaSplunk = 't';
+    ptrCadenaSplunk ++;
+    *ptrCadenaSplunk = 'r';
+    ptrCadenaSplunk ++;
+    *ptrCadenaSplunk = 'i';
+    ptrCadenaSplunk ++;
+    *ptrCadenaSplunk = 'a';
+    ptrCadenaSplunk ++;
+    *ptrCadenaSplunk = '=';
+    ptrCadenaSplunk ++;
+
+    sprintf(Informacion, "%d", muestra.Pluviometria);
+    for(i=0; i<16; i++)
+    {
+        if(Informacion[i]!='\0')
+        {
+            *ptrCadenaSplunk = (unsigned char)Informacion[i];
+            ptrCadenaSplunk++;
+        }
+        else{break;}
+    }
+
+    *ptrCadenaSplunk = 'm';
+    ptrCadenaSplunk ++;
+    *ptrCadenaSplunk = 'm';
+    ptrCadenaSplunk ++;
+    *ptrCadenaSplunk = ',';
+    ptrCadenaSplunk ++;
+    *ptrCadenaSplunk = 'V';
+    ptrCadenaSplunk ++;
+    *ptrCadenaSplunk = 'e';
+    ptrCadenaSplunk ++;
+    *ptrCadenaSplunk = 'l';
+    ptrCadenaSplunk ++;
+    *ptrCadenaSplunk = '_';
+    ptrCadenaSplunk ++;
+    *ptrCadenaSplunk = 'A';
+    ptrCadenaSplunk ++;
+    *ptrCadenaSplunk = 'i';
+    ptrCadenaSplunk ++;
+    *ptrCadenaSplunk = 'r';
+    ptrCadenaSplunk ++;
+    *ptrCadenaSplunk = 'e';
+    ptrCadenaSplunk ++;
+    *ptrCadenaSplunk = '=';
+    ptrCadenaSplunk ++;
+
+    sprintf(Informacion, "%d", muestra.Vel_Aire);
+    for(i=0; i<16; i++)
+    {
+        if(Informacion[i]!='\0')
+        {
+            *ptrCadenaSplunk = (unsigned char)Informacion[i];
+            ptrCadenaSplunk++;
+        }
+        else{break;}
+    }
+
+    *ptrCadenaSplunk = 'k';
+    ptrCadenaSplunk ++;
+    *ptrCadenaSplunk = 'm';
+    ptrCadenaSplunk ++;
+    *ptrCadenaSplunk = '/';
+    ptrCadenaSplunk ++;
+    *ptrCadenaSplunk = 'h';
+    ptrCadenaSplunk ++;
+    *ptrCadenaSplunk = ',';
+    ptrCadenaSplunk ++;
+    *ptrCadenaSplunk = 'N';
+    ptrCadenaSplunk ++;
+    *ptrCadenaSplunk = 'i';
+    ptrCadenaSplunk ++;
+    *ptrCadenaSplunk = 'v';
+    ptrCadenaSplunk ++;
+    *ptrCadenaSplunk = 'e';
+    ptrCadenaSplunk ++;
+    *ptrCadenaSplunk = 'l';
+    ptrCadenaSplunk ++;
+    *ptrCadenaSplunk = '_';
+    ptrCadenaSplunk ++;
+    *ptrCadenaSplunk = 'B';
+    ptrCadenaSplunk ++;
+    *ptrCadenaSplunk = 'a';
+    ptrCadenaSplunk ++;
+    *ptrCadenaSplunk = 't';
+    ptrCadenaSplunk ++;
+    *ptrCadenaSplunk = '=';
+    ptrCadenaSplunk ++;
+
+    sprintf(Informacion, "%d", muestra.Nivel_Bateria);
+    for(i=0; i<16; i++)
+    {
+        if(Informacion[i]!='\0')
+        {
+            *ptrCadenaSplunk = (unsigned char)Informacion[i];
+            ptrCadenaSplunk++;
+        }
+        else{break;}
+    }
+    *ptrCadenaSplunk = '%';
+    ptrCadenaSplunk++;
+    
+    //Salto de línea///////////////////////////
+    *ptrCadenaSplunk = '\r';
+    ptrCadenaSplunk++;
+    *ptrCadenaSplunk = '\n';
+    ptrCadenaSplunk++;
+    *ptrCadenaSplunk = '\0';
+}
+
+//********************************************************************************************************************
+//Función que calcula la checksum complemento A2 resultante de tomar una muestra en un determinado momento del tiempo.
+//********************************************************************************************************************
+BYTE Calcula_Cheksum_Muestra(rtccFechaHora fechaHoraReloj, SENSORES muestra)
+{
+    BYTE Suma = 0;
+    WORD_VAL Medida;
+
+    //CHECKSUM: DDMMYYHHMMTTTTPPPPVVVVBBBB + CHK
+    Suma += fechaHoraReloj.f.DiaMes;
+    Suma += fechaHoraReloj.f.Mes;
+    Suma += fechaHoraReloj.f.Ano;
+    Suma += fechaHoraReloj.f.Hora;
+    Suma += fechaHoraReloj.f.Minutos;
+    Medida.Val = (WORD)muestra.Temperatura;
+    Suma += Medida.byte.HB;
+    Suma += Medida.byte.LB;
+    Medida.Val = (WORD)muestra.Pluviometria;
+    Suma += Medida.byte.HB;
+    Suma += Medida.byte.LB;
+    Medida.Val = (WORD)muestra.Vel_Aire;
+    Suma += Medida.byte.HB;
+    Suma += Medida.byte.LB;
+    Medida.Val = (WORD)muestra.Nivel_Bateria;
+    Suma += Medida.byte.HB;
+    Suma += Medida.byte.LB;
+    //Checksum final
+    Suma = 0x100 - Suma;
+
+    return Suma;
+}
 
 //********************************************************************************************************************
 //********************************************************************************************************************
@@ -256,25 +512,7 @@ BOOL Guarda_Muestra_EEPROM(SENSORES Muestra, WORD Direccion)
     if(Reintentos==3){return FALSE;}
 
     //CHECKSUM: DDMMYYHHMMTTTTPPPPVVVVBBBB + CHK
-    Suma += FechaHoraReloj.f.DiaMes;
-    Suma += FechaHoraReloj.f.Mes;
-    Suma += FechaHoraReloj.f.Ano;
-    Suma += FechaHoraReloj.f.Hora;
-    Suma += FechaHoraReloj.f.Minutos;
-    Medida.Val = (WORD)Muestra.Temperatura;
-    Suma += Medida.byte.HB;
-    Suma += Medida.byte.LB;
-    Medida.Val = (WORD)Muestra.Pluviometria;
-    Suma += Medida.byte.HB;
-    Suma += Medida.byte.LB;
-    Medida.Val = (WORD)Muestra.Vel_Aire;
-    Suma += Medida.byte.HB;
-    Suma += Medida.byte.LB;
-    Medida.Val = (WORD)Muestra.Nivel_Bateria;
-    Suma += Medida.byte.HB;
-    Suma += Medida.byte.LB;
-    //Checksum final
-    Suma = 0x100 - Suma;
+    Suma = Calcula_Cheksum_Muestra(FechaHoraReloj, Muestra);
 
     //Escritura de la suma de comprobación CHECKSUM///////////////
     Reintentos = 0;
@@ -376,46 +614,49 @@ RESPUESTA Si_Realizar_Envio_Muestras_Modem()
 //********************************************************************************************************************
 BOOL Enviar_Muestras_Modem()
 {
-    WORD cntDireccion=0;
+    WORD cntDireccion = 0;
     WORD DirFinal = 0;
 
-    DirFinal = Siguiente_Direccion_Libre_EEPROM();
+    BYTE CadenaSplunk[100];
+    rtccFechaHora Timestamp;
+    SENSORES Muestra;
+    BYTE Checksum = 0;
+    BYTE Checksum_calc = 0;
 
     //Habilitamos la UART
     UART2_Configura_Abre();
 
-    //Lectura de cada uno de los datos de la memoria y envío por la UART
-    for(cntDireccion=DIR_BASE_MEDIDAS; cntDireccion<DirFinal; cntDireccion++)
-    {
-        UART2_Envia_Byte(EEPROM_ReadByte(cntDireccion));
-    }
+    //Obtenemos el límite hasta donde realizar la lectura de muestras
+    DirFinal = Siguiente_Direccion_Libre_EEPROM();
+    if(DirFinal> TAM_MEMORIA_EEPROM){return FALSE;}
 
-    //////////////////////////////////////////////////////////////
-//    rtccFechaHora FechaHoraReloj = Lectura_FechaHora_Reloj();
-//    BYTE FechaFormateada[9];
-//    BYTE HoraFormateada[9];
-//    FechaFormateada[0] = (BYTE)((((FechaHoraReloj.f.DiaMes) & 0xF0)>>4)+ 0x30);
-//    FechaFormateada[1] = (BYTE)(((FechaHoraReloj.f.DiaMes) & 0x0F)+ 0x30);
-//    FechaFormateada[2] = '/';
-//    FechaFormateada[3] = (BYTE)((((FechaHoraReloj.f.Mes) & 0xF0)>>4)+ 0x30);
-//    FechaFormateada[4] = (BYTE)(((FechaHoraReloj.f.Mes) & 0x0F)+ 0x30);
-//    FechaFormateada[5] = '/';
-//    FechaFormateada[6] = (BYTE)((((FechaHoraReloj.f.Ano) & 0xF0)>>4)+ 0x30);
-//    FechaFormateada[7] = (BYTE)(((FechaHoraReloj.f.Ano) & 0x0F)+ 0x30);
-//    FechaFormateada[8] = '\0';
-//    LCD_WrString_LinPos(LCD_LINEA2, 4, FechaFormateada);
-//    HoraFormateada[0] = (BYTE)((((FechaHoraReloj.f.Hora) & 0xF0)>>4)+ 0x30);
-//    HoraFormateada[1] = (BYTE)(((FechaHoraReloj.f.Hora) & 0x0F)+ 0x30);
-//    HoraFormateada[2] = ':';
-//    HoraFormateada[3] = (BYTE)((((FechaHoraReloj.f.Minutos) & 0xF0)>>4)+ 0x30);
-//    HoraFormateada[4] = (BYTE)(((FechaHoraReloj.f.Minutos) & 0x0F)+ 0x30);
-//    HoraFormateada[5] = ':';
-//    HoraFormateada[6] = (BYTE)((((FechaHoraReloj.f.Segundos) & 0xF0)>>4)+ 0x30);
-//    HoraFormateada[7] = (BYTE)(((FechaHoraReloj.f.Segundos) & 0x0F)+ 0x30);
-//    HoraFormateada[8] = '\0';
-//    LCD_WrString_LinPos(LCD_LINEA1, 4, HoraFormateada);
-//    Retardo(4000);
-    //////////////////////////////////////////////////////////////
+    //Lectura de cada uno de los datos de la memoria y envío por la UART
+    for(cntDireccion=DIR_BASE_MEDIDAS; cntDireccion<DirFinal; cntDireccion = (WORD)(cntDireccion + BYTES_POR_MEDIDA))
+    {
+        Timestamp.f.DiaMes = EEPROM_ReadByte(cntDireccion);
+        Timestamp.f.Mes = EEPROM_ReadByte(cntDireccion+1);
+        Timestamp.f.Ano = EEPROM_ReadByte(cntDireccion+2);
+        Timestamp.f.Hora = EEPROM_ReadByte(cntDireccion+3);
+        Timestamp.f.Minutos = EEPROM_ReadByte(cntDireccion+4);
+
+        Muestra.Temperatura =EEPROM_ReadByte(cntDireccion+5);
+        Muestra.Temperatura |=(WORD)(EEPROM_ReadByte(cntDireccion+6)<<8);
+        Muestra.Pluviometria =EEPROM_ReadByte(cntDireccion+7);
+        Muestra.Pluviometria |=(WORD)(EEPROM_ReadByte(cntDireccion+8)<<8);
+        Muestra.Vel_Aire =EEPROM_ReadByte(cntDireccion+9);
+        Muestra.Vel_Aire |=(WORD)(EEPROM_ReadByte(cntDireccion+10)<<8);
+        Muestra.Nivel_Bateria =EEPROM_ReadByte(cntDireccion+11);
+        Muestra.Nivel_Bateria |=(WORD)(EEPROM_ReadByte(cntDireccion+12)<<8);
+
+        Checksum = EEPROM_ReadByte(cntDireccion+13);
+        Checksum_calc = Calcula_Cheksum_Muestra(Timestamp, Muestra);
+        //Comprobación de la integridad de la muestra almacenada. Sólo si es correcta, se envía.
+        if(Checksum == Checksum_calc)
+        {
+            Formatear_Muestra_SvrSplunk(CadenaSplunk, Timestamp, Muestra);
+            UART2_Envia_Cadena((char*)CadenaSplunk);
+        }
+    }
 
     return TRUE;
 }
