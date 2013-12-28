@@ -33,6 +33,59 @@ void Inicializacion_Com_Modem(void)
 }
 
 //********************************************************************************************************************
+//Funcion que comprueba que el modem se encuentra en línea y listo para recibir comandos AT.
+//********************************************************************************************************************
+BOOL AT(void)
+{
+   BYTE DatosRecibidos_UART2[100];
+   BYTE DatosRecAux[100];
+   BYTE i = 0;
+   BYTE Reintentos = 0;
+   BOOL OK_Recibido = FALSE;
+   char COM_AT[5] = {'A','T',0x0D,0x0A,'\0'};
+
+   //Bucle para realizar reintentos
+   do
+   {
+       //Inicializamos buffer de datos
+       for(i=0; i<100; i++) {DatosRecibidos_UART2[i] = '\0';}
+
+       //Envío del comando
+       UART2_Envia_Cadena(COM_AT);
+
+       //Esperamos a recibir todos los datos.. Si pasan 2 segundos sin recibir nada,
+       //se entiende que la comunicación finalizó y salimos..
+       Reset_Contador_MSeg();
+       while(Lectura_Contador_MSeg()<1000)
+       {
+           if(UART2_DatosPorLeer())
+           {
+               Reset_Contador_MSeg();                                             //Reset del contador de tiempo de salida del bucle
+               for(i=0; i<100; i++) { DatosRecAux[i] = '\0'; }                    //Inicializamos buffer recepción parcial
+               UART2_LeerDatos((char *)DatosRecAux, UART2_DatosPorLeer());        //Lectura de datos del buffer UART
+               strcat((char *)DatosRecibidos_UART2, (const char *)DatosRecAux);   //Concatenamos datos recibidos en el buffer
+           }
+       }
+
+       //Buscamos en la respuesta recibida si el comando finalizó con éxito buscando "OK"
+       for(i=0; i<100; i++)
+       {
+           if((DatosRecibidos_UART2[i] == 'O')&&(DatosRecibidos_UART2[i+1] == 'K'))
+           {
+               OK_Recibido = TRUE;
+               break;
+           }
+       }
+
+       //Se incrementan los reintentos
+       Reintentos++;
+   }while((OK_Recibido == FALSE)&&(Reintentos < 3));
+
+   //Final del proceso
+   return OK_Recibido;
+}
+
+//********************************************************************************************************************
 //Funcion ejectua el comando AT+CREG? para comprobar el estado de registro del módem en la red móvil GSM/GPRS
 //La respuesta será +CREG: <mode>,<stat><CR><LF><CR><LF>OK<CR><LF> donde mode=1 y stat=1 para un registro correcto.
 //********************************************************************************************************************
@@ -44,7 +97,7 @@ BOOL AT_CREG(void)
    BYTE Reintentos = 0;
    BOOL OK_Recibido = FALSE;
    BOOL Resultado = FALSE;
-   char ATCREG[11] = {'A','T','+','C','R','E','G','?',0x0D,0x0A,'\0'};
+   char COM_AT[11] = {'A','T','+','C','R','E','G','?',0x0D,0x0A,'\0'};
    
    //Bucle para realizar reintentos
    do
@@ -53,7 +106,7 @@ BOOL AT_CREG(void)
        for(i=0; i<100; i++) {DatosRecibidos_UART2[i] = '\0';}
 
        //Envío del comando
-       UART2_Envia_Cadena(ATCREG);
+       UART2_Envia_Cadena(COM_AT);
 
        //Esperamos a recibir todos los datos.. Si pasan 2 segundos sin recibir nada,
        //se entiende que la comunicación finalizó y salimos..
@@ -130,7 +183,7 @@ BOOL AT_CPIN(unsigned char* pin)
        //Esperamos a recibir todos los datos.. Si pasan los segundos indicados sin recibir nada,
        //se entiende que la comunicación finalizó y salimos..
        Reset_Contador_MSeg();
-       while(Lectura_Contador_MSeg()<5000)
+       while(Lectura_Contador_MSeg()<2500)
        {
            if(UART2_DatosPorLeer())
            {
@@ -975,9 +1028,125 @@ BOOL Caracter_ETX(void)
    return OK_Recibido;
 }
 
-BOOL Nivel_Cobertura()
+//********************************************************************************************************************
+//Función que comprueba la calidad de la señal recibida por el modem. La cobertura viene determinada por el baremo:
+//
+//  0: -113 dBm o menor.
+//  1: -111 dBm.
+//  2 a 30: -109 a ?53 dBm.
+//  31: -51dBm o mayor.
+//  99: No destectada o inexistente.
+//
+//  Respuesta ejemplo al comando:
+//        +CSQ: 21,0<CR><LF>
+//        <CR><LF>
+//        OK<CR><LF
+//********************************************************************************************************************
+CALIDAD_COBERTURA AT_CSQ()
 {
-    
+   BYTE DatosRecibidos_UART2[100];
+   BYTE DatosRecAux[100];
+   BYTE i = 0;
+   BYTE Reintentos = 0;
+   BOOL OK_Recibido = FALSE;
+   char COM_AT[9] = {'A','T','+','C','S','Q',0x0D,0x0A,'\0'};
+   CALIDAD_COBERTURA Intensidad = INTENSIDAD_NULA;
+   BYTE Valor_Cobertura = 0;
+   BOOL Flag = FALSE;
+   BYTE Cifra1 = 255, Cifra2 = 255;
+
+   //Bucle para realizar reintentos
+   do
+   {
+       //Inicializamos buffer de datos
+       for(i=0; i<100; i++) {DatosRecibidos_UART2[i] = '\0';}
+
+       //Envío del comando
+       UART2_Envia_Cadena(COM_AT);
+
+       //Esperamos a recibir todos los datos.. Si pasan 2 segundos sin recibir nada,
+       //se entiende que la comunicación finalizó y salimos..
+       Reset_Contador_MSeg();
+       while(Lectura_Contador_MSeg()<2000)
+       {
+           if(UART2_DatosPorLeer())
+           {
+               Reset_Contador_MSeg();                                             //Reset del contador de tiempo de salida del bucle
+               for(i=0; i<100; i++) { DatosRecAux[i] = '\0'; }                    //Inicializamos buffer recepción parcial
+               UART2_LeerDatos((char *)DatosRecAux, UART2_DatosPorLeer());        //Lectura de datos del buffer UART
+               strcat((char *)DatosRecibidos_UART2, (const char *)DatosRecAux);   //Concatenamos datos recibidos en el buffer
+           }
+       }
+
+       //Buscamos en la respuesta recibida si el comando finalizó con éxito buscando "OK"
+       for(i=0; i<100; i++)
+       {
+           if((DatosRecibidos_UART2[i] == 'O')&&(DatosRecibidos_UART2[i+1] == 'K'))
+           {
+               OK_Recibido = TRUE;
+               break;
+           }
+       }
+
+       //Se incrementan los reintentos
+       Reintentos++;
+   }while((OK_Recibido == FALSE)&&(Reintentos < 3));
+
+   //Averiguamos el valor de la intensidad de la señal y devolvemos el resultado
+   if(OK_Recibido)
+   {
+       //Obtención del valor numérico de la intensidad de la señal
+       Valor_Cobertura = 0;
+       for(i=0; i<100; i++)
+       {
+           if(DatosRecibidos_UART2[i] == ':'){Flag = TRUE;}
+           if(DatosRecibidos_UART2[i] == ','){Flag = FALSE; break;}
+           if(Flag)
+           {
+               if((DatosRecibidos_UART2[i]>0x2F)&&(DatosRecibidos_UART2[i]<0x3A))
+               {
+                   if(Cifra1==255){Cifra1 = DatosRecibidos_UART2[i];}
+                   else{Cifra2 = DatosRecibidos_UART2[i];}
+               }
+           }
+       }
+
+       //Valor de cobertura de una sola cifra
+       if((Cifra1 != 255)&&(Cifra2 == 255))
+       {
+           Valor_Cobertura = Cifra1 - 0x30;
+       }
+       //Valor de cobertura de dos cifras
+       else if((Cifra1 != 255)&&(Cifra2 != 255))
+       {
+           Valor_Cobertura = ((Cifra1 - 0x30)*10)+(Cifra2 -0x30);
+       }
+
+       //Interpretación del valor obtenido
+       if(Valor_Cobertura<5)
+       {
+           Intensidad = INTENSIDAD_MUY_BAJA;
+       }
+       else if((Valor_Cobertura>=5)&&(Valor_Cobertura<10))
+       {
+           Intensidad = INTENSIDAD_BAJA;
+       }
+       else if((Valor_Cobertura>=10)&&(Valor_Cobertura<31))
+       {
+           Intensidad = INTENSIDAD_BUENA;
+       }
+       else if((Valor_Cobertura>=31)&&(Valor_Cobertura<99))
+       {
+           Intensidad = INTENSIDAD_EXCELENTE;
+       }
+       else 
+       {
+           Intensidad = INTENSIDAD_NULA;
+       }
+   }
+
+   //Resultado final
+   return Intensidad;
 }
 
 

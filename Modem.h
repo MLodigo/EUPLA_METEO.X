@@ -23,11 +23,21 @@
 //////////////////////////////////////////////////////////////
 //TIPOS DEFINIDOS Y ESTRUCTURAS
 //////////////////////////////////////////////////////////////
+typedef enum _COBERTURA
+{
+    INTENSIDAD_NULA = 0,
+    INTENSIDAD_MUY_BAJA,
+    INTENSIDAD_BAJA,
+    INTENSIDAD_BUENA,
+    INTENSIDAD_EXCELENTE
+    
+} CALIDAD_COBERTURA;
 
 //////////////////////////////////////////////////////////////
 //METODOS PUBLICOS   Definición de funciones o prototipos
 //////////////////////////////////////////////////////////////
 void Inicializacion_Com_Modem(void);
+BOOL AT(void);
 BOOL AT_CREG(void);
 BOOL AT_CPIN(unsigned char*);
 BOOL AT_WOPEN(unsigned char);
