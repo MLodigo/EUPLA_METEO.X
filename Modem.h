@@ -37,6 +37,7 @@ typedef enum _COBERTURA
 //METODOS PUBLICOS   Definición de funciones o prototipos
 //////////////////////////////////////////////////////////////
 void Inicializacion_Com_Modem(void);
+void Cierra_Com_Modem(void);
 BOOL AT(void);
 BOOL AT_CREG(void);
 BOOL AT_CPIN(unsigned char*);

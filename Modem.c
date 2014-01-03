@@ -33,6 +33,14 @@ void Inicializacion_Com_Modem(void)
 }
 
 //********************************************************************************************************************
+//Funcion que cierra la comunicación con el modem
+//********************************************************************************************************************
+void Cierra_Com_Modem(void)
+{
+    UART2_Cierra();
+}
+
+//********************************************************************************************************************
 //Funcion que comprueba que el modem se encuentra en línea y listo para recibir comandos AT.
 //********************************************************************************************************************
 BOOL AT(void)
@@ -53,10 +61,10 @@ BOOL AT(void)
        //Envío del comando
        UART2_Envia_Cadena(COM_AT);
 
-       //Esperamos a recibir todos los datos.. Si pasan 2 segundos sin recibir nada,
+       //Esperamos a recibir todos los datos.. Si pasan un tiempo sin recibir nada,
        //se entiende que la comunicación finalizó y salimos..
        Reset_Contador_MSeg();
-       while(Lectura_Contador_MSeg()<1000)
+       while((Lectura_Contador_MSeg()<5000)&&(!OK_Recibido))
        {
            if(UART2_DatosPorLeer())
            {
@@ -64,16 +72,16 @@ BOOL AT(void)
                for(i=0; i<100; i++) { DatosRecAux[i] = '\0'; }                    //Inicializamos buffer recepción parcial
                UART2_LeerDatos((char *)DatosRecAux, UART2_DatosPorLeer());        //Lectura de datos del buffer UART
                strcat((char *)DatosRecibidos_UART2, (const char *)DatosRecAux);   //Concatenamos datos recibidos en el buffer
-           }
-       }
 
-       //Buscamos en la respuesta recibida si el comando finalizó con éxito buscando "OK"
-       for(i=0; i<100; i++)
-       {
-           if((DatosRecibidos_UART2[i] == 'O')&&(DatosRecibidos_UART2[i+1] == 'K'))
-           {
-               OK_Recibido = TRUE;
-               break;
+               //Buscamos en la respuesta recibida si el comando finalizó con éxito buscando "OK"
+               for(i=0; i<100; i++)
+               {
+                   if((DatosRecibidos_UART2[i] == 'O')&&(DatosRecibidos_UART2[i+1] == 'K'))
+                   {
+                       OK_Recibido = TRUE;
+                       break;
+                   }
+               }
            }
        }
 
@@ -108,10 +116,10 @@ BOOL AT_CREG(void)
        //Envío del comando
        UART2_Envia_Cadena(COM_AT);
 
-       //Esperamos a recibir todos los datos.. Si pasan 2 segundos sin recibir nada,
+       //Esperamos a recibir todos los datos.. Si pasan un tiempo sin recibir nada,
        //se entiende que la comunicación finalizó y salimos..
        Reset_Contador_MSeg();
-       while(Lectura_Contador_MSeg()<2500)
+       while(Lectura_Contador_MSeg()<300)
        {
            if(UART2_DatosPorLeer())
            {
@@ -180,10 +188,10 @@ BOOL AT_CPIN(unsigned char* pin)
        //Envío del comando
        UART2_Envia_Cadena(COM_AT);
 
-       //Esperamos a recibir todos los datos.. Si pasan los segundos indicados sin recibir nada,
+       //Esperamos a recibir todos los datos.. Si pasa un tiempo sin recibir nada,
        //se entiende que la comunicación finalizó y salimos..
        Reset_Contador_MSeg();
-       while(Lectura_Contador_MSeg()<2500)
+       while((Lectura_Contador_MSeg()<30000)&&(!OK_Recibido))
        {
            if(UART2_DatosPorLeer())
            {
@@ -191,16 +199,16 @@ BOOL AT_CPIN(unsigned char* pin)
                for(i=0; i<100; i++) { DatosRecAux[i] = '\0'; }                    //Inicializamos buffer recepción parcial
                UART2_LeerDatos((char *)DatosRecAux, UART2_DatosPorLeer());        //Lectura de datos del buffer UART
                strcat((char *)DatosRecibidos_UART2, (const char *)DatosRecAux);   //Concatenamos datos recibidos en el buffer
-           }
-       }
 
-       //Buscamos en la respuesta recibida si el comando finalizó con éxito buscando "OK"
-       for(i=0; i<100; i++)
-       {
-           if((DatosRecibidos_UART2[i] == 'O')&&(DatosRecibidos_UART2[i+1] == 'K'))
-           {
-               OK_Recibido = TRUE;
-               break;
+               //Buscamos en la respuesta recibida si el comando finalizó con éxito buscando "OK"
+               for(i=0; i<100; i++)
+               {
+                   if((DatosRecibidos_UART2[i] == 'O')&&(DatosRecibidos_UART2[i+1] == 'K'))
+                   {
+                       OK_Recibido = TRUE;
+                       break;
+                   }
+               }
            }
        }
 
@@ -240,10 +248,10 @@ BOOL AT_WOPEN(unsigned char valor)
        //Envío del comando
        UART2_Envia_Cadena(COM_AT);
 
-       //Esperamos a recibir todos los datos.. Si pasan los segundos indicados sin recibir nada,
+       //Esperamos a recibir todos los datos.. Si pasa un tiempo sin recibir nada,
        //se entiende que la comunicación finalizó y salimos..
        Reset_Contador_MSeg();
-       while(Lectura_Contador_MSeg()<2000)
+       while((Lectura_Contador_MSeg()<5000)&&(!OK_Recibido))
        {
            if(UART2_DatosPorLeer())
            {
@@ -251,16 +259,16 @@ BOOL AT_WOPEN(unsigned char valor)
                for(i=0; i<100; i++) { DatosRecAux[i] = '\0'; }                    //Inicializamos buffer recepción parcial
                UART2_LeerDatos((char *)DatosRecAux, UART2_DatosPorLeer());        //Lectura de datos del buffer UART
                strcat((char *)DatosRecibidos_UART2, (const char *)DatosRecAux);   //Concatenamos datos recibidos en el buffer
-           }
-       }
 
-       //Buscamos en la respuesta recibida si el comando finalizó con éxito buscando "OK"
-       for(i=0; i<100; i++)
-       {
-           if((DatosRecibidos_UART2[i] == 'O')&&(DatosRecibidos_UART2[i+1] == 'K'))
-           {
-               OK_Recibido = TRUE;
-               break;
+               //Buscamos en la respuesta recibida si el comando finalizó con éxito buscando "OK"
+               for(i=0; i<100; i++)
+               {
+                   if((DatosRecibidos_UART2[i] == 'O')&&(DatosRecibidos_UART2[i+1] == 'K'))
+                   {
+                       OK_Recibido = TRUE;
+                       break;
+                   }
+               }
            }
        }
 
@@ -299,10 +307,10 @@ BOOL AT_GPRSMODE(unsigned char valor)
        //Envío del comando
        UART2_Envia_Cadena(COM_AT);
 
-       //Esperamos a recibir todos los datos.. Si pasan los segundos indicados sin recibir nada,
+       //Esperamos a recibir todos los datos.. Si pasa un tiempo sin recibir nada,
        //se entiende que la comunicación finalizó y salimos..
        Reset_Contador_MSeg();
-       while(Lectura_Contador_MSeg()<2000)
+       while((Lectura_Contador_MSeg()<5000)&&(!OK_Recibido))
        {
            if(UART2_DatosPorLeer())
            {
@@ -310,16 +318,16 @@ BOOL AT_GPRSMODE(unsigned char valor)
                for(i=0; i<100; i++) { DatosRecAux[i] = '\0'; }                    //Inicializamos buffer recepción parcial
                UART2_LeerDatos((char *)DatosRecAux, UART2_DatosPorLeer());        //Lectura de datos del buffer UART
                strcat((char *)DatosRecibidos_UART2, (const char *)DatosRecAux);   //Concatenamos datos recibidos en el buffer
-           }
-       }
 
-       //Buscamos en la respuesta recibida si el comando finalizó con éxito buscando "OK"
-       for(i=0; i<100; i++)
-       {
-           if((DatosRecibidos_UART2[i] == 'O')&&(DatosRecibidos_UART2[i+1] == 'K'))
-           {
-               OK_Recibido = TRUE;
-               break;
+               //Buscamos en la respuesta recibida si el comando finalizó con éxito buscando "OK"
+               for(i=0; i<100; i++)
+               {
+                   if((DatosRecibidos_UART2[i] == 'O')&&(DatosRecibidos_UART2[i+1] == 'K'))
+                   {
+                       OK_Recibido = TRUE;
+                       break;
+                   }
+               }
            }
        }
 
@@ -358,10 +366,10 @@ BOOL AT_APNSERV(unsigned char* proveedor)
        //Envío del comando
        UART2_Envia_Cadena(COM_AT);
 
-       //Esperamos a recibir todos los datos.. Si pasan los segundos indicados sin recibir nada,
+       //Esperamos a recibir todos los datos.. Si pasa un tiempo sin recibir nada,
        //se entiende que la comunicación finalizó y salimos..
        Reset_Contador_MSeg();
-       while(Lectura_Contador_MSeg()<2000)
+       while((Lectura_Contador_MSeg()<5000)&&(!OK_Recibido))
        {
            if(UART2_DatosPorLeer())
            {
@@ -369,16 +377,16 @@ BOOL AT_APNSERV(unsigned char* proveedor)
                for(i=0; i<100; i++) { DatosRecAux[i] = '\0'; }                    //Inicializamos buffer recepción parcial
                UART2_LeerDatos((char *)DatosRecAux, UART2_DatosPorLeer());        //Lectura de datos del buffer UART
                strcat((char *)DatosRecibidos_UART2, (const char *)DatosRecAux);   //Concatenamos datos recibidos en el buffer
-           }
-       }
 
-       //Buscamos en la respuesta recibida si el comando finalizó con éxito buscando "OK"
-       for(i=0; i<100; i++)
-       {
-           if((DatosRecibidos_UART2[i] == 'O')&&(DatosRecibidos_UART2[i+1] == 'K'))
-           {
-               OK_Recibido = TRUE;
-               break;
+               //Buscamos en la respuesta recibida si el comando finalizó con éxito buscando "OK"
+               for(i=0; i<100; i++)
+               {
+                   if((DatosRecibidos_UART2[i] == 'O')&&(DatosRecibidos_UART2[i+1] == 'K'))
+                   {
+                       OK_Recibido = TRUE;
+                       break;
+                   }
+               }
            }
        }
 
@@ -417,10 +425,10 @@ BOOL AT_APNUN(unsigned char* usuario)
        //Envío del comando
        UART2_Envia_Cadena(COM_AT);
 
-       //Esperamos a recibir todos los datos.. Si pasan los segundos indicados sin recibir nada,
+       //Esperamos a recibir todos los datos.. Si pasa un tiempo sin recibir nada,
        //se entiende que la comunicación finalizó y salimos..
        Reset_Contador_MSeg();
-       while(Lectura_Contador_MSeg()<2000)
+       while((Lectura_Contador_MSeg()<5000)&&(!OK_Recibido))
        {
            if(UART2_DatosPorLeer())
            {
@@ -428,16 +436,16 @@ BOOL AT_APNUN(unsigned char* usuario)
                for(i=0; i<100; i++) { DatosRecAux[i] = '\0'; }                    //Inicializamos buffer recepción parcial
                UART2_LeerDatos((char *)DatosRecAux, UART2_DatosPorLeer());        //Lectura de datos del buffer UART
                strcat((char *)DatosRecibidos_UART2, (const char *)DatosRecAux);   //Concatenamos datos recibidos en el buffer
-           }
-       }
 
-       //Buscamos en la respuesta recibida si el comando finalizó con éxito buscando "OK"
-       for(i=0; i<100; i++)
-       {
-           if((DatosRecibidos_UART2[i] == 'O')&&(DatosRecibidos_UART2[i+1] == 'K'))
-           {
-               OK_Recibido = TRUE;
-               break;
+               //Buscamos en la respuesta recibida si el comando finalizó con éxito buscando "OK"
+               for(i=0; i<100; i++)
+               {
+                   if((DatosRecibidos_UART2[i] == 'O')&&(DatosRecibidos_UART2[i+1] == 'K'))
+                   {
+                       OK_Recibido = TRUE;
+                       break;
+                   }
+               }
            }
        }
 
@@ -476,10 +484,10 @@ BOOL AT_APNPW(unsigned char* password)
        //Envío del comando
        UART2_Envia_Cadena(COM_AT);
 
-       //Esperamos a recibir todos los datos.. Si pasan los segundos indicados sin recibir nada,
+       //Esperamos a recibir todos los datos.. Si pasa un tiempo sin recibir nada,
        //se entiende que la comunicación finalizó y salimos..
        Reset_Contador_MSeg();
-       while(Lectura_Contador_MSeg()<2000)
+       while((Lectura_Contador_MSeg()<5000)&&(!OK_Recibido))
        {
            if(UART2_DatosPorLeer())
            {
@@ -487,16 +495,16 @@ BOOL AT_APNPW(unsigned char* password)
                for(i=0; i<100; i++) { DatosRecAux[i] = '\0'; }                    //Inicializamos buffer recepción parcial
                UART2_LeerDatos((char *)DatosRecAux, UART2_DatosPorLeer());        //Lectura de datos del buffer UART
                strcat((char *)DatosRecibidos_UART2, (const char *)DatosRecAux);   //Concatenamos datos recibidos en el buffer
-           }
-       }
 
-       //Buscamos en la respuesta recibida si el comando finalizó con éxito buscando "OK"
-       for(i=0; i<100; i++)
-       {
-           if((DatosRecibidos_UART2[i] == 'O')&&(DatosRecibidos_UART2[i+1] == 'K'))
-           {
-               OK_Recibido = TRUE;
-               break;
+               //Buscamos en la respuesta recibida si el comando finalizó con éxito buscando "OK"
+               for(i=0; i<100; i++)
+               {
+                   if((DatosRecibidos_UART2[i] == 'O')&&(DatosRecibidos_UART2[i+1] == 'K'))
+                   {
+                       OK_Recibido = TRUE;
+                       break;
+                   }
+               }
            }
        }
 
@@ -536,10 +544,10 @@ BOOL AT_TCPSERV(unsigned char* DNS_Servidor)
        //Envío del comando
        UART2_Envia_Cadena(COM_AT);
 
-       //Esperamos a recibir todos los datos.. Si pasan los segundos indicados sin recibir nada,
+       //Esperamos a recibir todos los datos.. Si pasa un tiempo sin recibir nada,
        //se entiende que la comunicación finalizó y salimos..
        Reset_Contador_MSeg();
-       while(Lectura_Contador_MSeg()<2000)
+       while((Lectura_Contador_MSeg()<5000)&&(!OK_Recibido))
        {
            if(UART2_DatosPorLeer())
            {
@@ -547,16 +555,16 @@ BOOL AT_TCPSERV(unsigned char* DNS_Servidor)
                for(i=0; i<100; i++) { DatosRecAux[i] = '\0'; }                    //Inicializamos buffer recepción parcial
                UART2_LeerDatos((char *)DatosRecAux, UART2_DatosPorLeer());        //Lectura de datos del buffer UART
                strcat((char *)DatosRecibidos_UART2, (const char *)DatosRecAux);   //Concatenamos datos recibidos en el buffer
-           }
-       }
 
-       //Buscamos en la respuesta recibida si el comando finalizó con éxito buscando "OK"
-       for(i=0; i<100; i++)
-       {
-           if((DatosRecibidos_UART2[i] == 'O')&&(DatosRecibidos_UART2[i+1] == 'K'))
-           {
-               OK_Recibido = TRUE;
-               break;
+               //Buscamos en la respuesta recibida si el comando finalizó con éxito buscando "OK"
+               for(i=0; i<100; i++)
+               {
+                   if((DatosRecibidos_UART2[i] == 'O')&&(DatosRecibidos_UART2[i+1] == 'K'))
+                   {
+                       OK_Recibido = TRUE;
+                       break;
+                   }
+               }
            }
        }
 
@@ -596,10 +604,10 @@ BOOL AT_TCPPORT(unsigned char* puerto)
        //Envío del comando
        UART2_Envia_Cadena(COM_AT);
 
-       //Esperamos a recibir todos los datos.. Si pasan los segundos indicados sin recibir nada,
+       //Esperamos a recibir todos los datos.. Si pasa un tiempo sin recibir nada,
        //se entiende que la comunicación finalizó y salimos..
        Reset_Contador_MSeg();
-       while(Lectura_Contador_MSeg()<2000)
+       while((Lectura_Contador_MSeg()<5000)&&(!OK_Recibido))
        {
            if(UART2_DatosPorLeer())
            {
@@ -607,16 +615,16 @@ BOOL AT_TCPPORT(unsigned char* puerto)
                for(i=0; i<100; i++) { DatosRecAux[i] = '\0'; }                    //Inicializamos buffer recepción parcial
                UART2_LeerDatos((char *)DatosRecAux, UART2_DatosPorLeer());        //Lectura de datos del buffer UART
                strcat((char *)DatosRecibidos_UART2, (const char *)DatosRecAux);   //Concatenamos datos recibidos en el buffer
-           }
-       }
 
-       //Buscamos en la respuesta recibida si el comando finalizó con éxito buscando "OK"
-       for(i=0; i<100; i++)
-       {
-           if((DatosRecibidos_UART2[i] == 'O')&&(DatosRecibidos_UART2[i+1] == 'K'))
-           {
-               OK_Recibido = TRUE;
-               break;
+               //Buscamos en la respuesta recibida si el comando finalizó con éxito buscando "OK"
+               for(i=0; i<100; i++)
+               {
+                   if((DatosRecibidos_UART2[i] == 'O')&&(DatosRecibidos_UART2[i+1] == 'K'))
+                   {
+                       OK_Recibido = TRUE;
+                       break;
+                   }
+               }
            }
        }
 
@@ -656,10 +664,10 @@ BOOL AT_TCPTXDELAY(unsigned char* retardo)
        //Envío del comando
        UART2_Envia_Cadena(COM_AT);
 
-       //Esperamos a recibir todos los datos.. Si pasan los segundos indicados sin recibir nada,
+       //Esperamos a recibir todos los datos.. Si pasa un tiempo sin recibir nada,
        //se entiende que la comunicación finalizó y salimos..
        Reset_Contador_MSeg();
-       while(Lectura_Contador_MSeg()<2000)
+       while((Lectura_Contador_MSeg()<5000)&&(!OK_Recibido))
        {
            if(UART2_DatosPorLeer())
            {
@@ -667,16 +675,16 @@ BOOL AT_TCPTXDELAY(unsigned char* retardo)
                for(i=0; i<100; i++) { DatosRecAux[i] = '\0'; }                    //Inicializamos buffer recepción parcial
                UART2_LeerDatos((char *)DatosRecAux, UART2_DatosPorLeer());        //Lectura de datos del buffer UART
                strcat((char *)DatosRecibidos_UART2, (const char *)DatosRecAux);   //Concatenamos datos recibidos en el buffer
-           }
-       }
 
-       //Buscamos en la respuesta recibida si el comando finalizó con éxito buscando "OK"
-       for(i=0; i<100; i++)
-       {
-           if((DatosRecibidos_UART2[i] == 'O')&&(DatosRecibidos_UART2[i+1] == 'K'))
-           {
-               OK_Recibido = TRUE;
-               break;
+               //Buscamos en la respuesta recibida si el comando finalizó con éxito buscando "OK"
+               for(i=0; i<100; i++)
+               {
+                   if((DatosRecibidos_UART2[i] == 'O')&&(DatosRecibidos_UART2[i+1] == 'K'))
+                   {
+                       OK_Recibido = TRUE;
+                       break;
+                   }
+               }
            }
        }
 
@@ -716,10 +724,10 @@ BOOL AT_DLEMODE(unsigned char valor)
        //Envío del comando
        UART2_Envia_Cadena(COM_AT);
 
-       //Esperamos a recibir todos los datos.. Si pasan los segundos indicados sin recibir nada,
+       //Esperamos a recibir todos los datos.. Si pasa un tiempo sin recibir nada,
        //se entiende que la comunicación finalizó y salimos..
        Reset_Contador_MSeg();
-       while(Lectura_Contador_MSeg()<2000)
+       while((Lectura_Contador_MSeg()<5000)&&(!OK_Recibido))
        {
            if(UART2_DatosPorLeer())
            {
@@ -727,16 +735,16 @@ BOOL AT_DLEMODE(unsigned char valor)
                for(i=0; i<100; i++) { DatosRecAux[i] = '\0'; }                    //Inicializamos buffer recepción parcial
                UART2_LeerDatos((char *)DatosRecAux, UART2_DatosPorLeer());        //Lectura de datos del buffer UART
                strcat((char *)DatosRecibidos_UART2, (const char *)DatosRecAux);   //Concatenamos datos recibidos en el buffer
-           }
-       }
 
-       //Buscamos en la respuesta recibida si el comando finalizó con éxito buscando "OK"
-       for(i=0; i<100; i++)
-       {
-           if((DatosRecibidos_UART2[i] == 'O')&&(DatosRecibidos_UART2[i+1] == 'K'))
-           {
-               OK_Recibido = TRUE;
-               break;
+               //Buscamos en la respuesta recibida si el comando finalizó con éxito buscando "OK"
+               for(i=0; i<100; i++)
+               {
+                   if((DatosRecibidos_UART2[i] == 'O')&&(DatosRecibidos_UART2[i+1] == 'K'))
+                   {
+                       OK_Recibido = TRUE;
+                       break;
+                   }
+               }
            }
        }
 
@@ -776,10 +784,10 @@ BOOL AT_CGATT(unsigned char valor)
        //Envío del comando
        UART2_Envia_Cadena(COM_AT);
 
-       //Esperamos a recibir todos los datos.. Si pasan los segundos indicados sin recibir nada,
+       //Esperamos a recibir todos los datos.. Si pasa un tiempo sin recibir nada,
        //se entiende que la comunicación finalizó y salimos..
        Reset_Contador_MSeg();
-       while(Lectura_Contador_MSeg()<5000)
+       while((Lectura_Contador_MSeg()<30000)&&(!OK_Recibido))
        {
            if(UART2_DatosPorLeer())
            {
@@ -787,16 +795,19 @@ BOOL AT_CGATT(unsigned char valor)
                for(i=0; i<100; i++) { DatosRecAux[i] = '\0'; }                    //Inicializamos buffer recepción parcial
                UART2_LeerDatos((char *)DatosRecAux, UART2_DatosPorLeer());        //Lectura de datos del buffer UART
                strcat((char *)DatosRecibidos_UART2, (const char *)DatosRecAux);   //Concatenamos datos recibidos en el buffer
-           }
-       }
 
-       //Buscamos en la respuesta recibida si el comando finalizó con éxito buscando "OK"
-       for(i=0; i<100; i++)
-       {
-           if((DatosRecibidos_UART2[i] == 'O')&&(DatosRecibidos_UART2[i+1] == 'K'))
-           {
-               OK_Recibido = TRUE;
-               break;
+               //En caso de hacer attach al servicio GPRS, buscamos en la respuesta "GREG: 1" y con detach "GREG: 0"
+               for(i=0; i<100; i++)
+               {
+                   //if((DatosRecibidos_UART2[i] == 'O')&&(DatosRecibidos_UART2[i+1] == 'K'))
+                  if((DatosRecibidos_UART2[i] == 'G')&&(DatosRecibidos_UART2[i+1] == 'R')&&(DatosRecibidos_UART2[i+2] == 'E')&&(DatosRecibidos_UART2[i+3] == 'G')&&
+                      (DatosRecibidos_UART2[i+4] == ':')&&(DatosRecibidos_UART2[i+5] == ' ')&&(DatosRecibidos_UART2[i+6] == valor))
+                   {
+                       OK_Recibido = TRUE;
+                       break;
+                   }
+                  
+               }
            }
        }
 
@@ -831,10 +842,10 @@ BOOL AT_CONNECTIONSTART(void)
        //Envío del comando
        UART2_Envia_Cadena(COM_AT);
 
-       //Esperamos a recibir todos los datos.. Si pasan 2 segundos sin recibir nada,
+       //Esperamos a recibir todos los datos.. Si pasa un tiempo sin recibir nada,
        //se entiende que la comunicación finalizó y salimos..
        Reset_Contador_MSeg();
-       while(Lectura_Contador_MSeg()<10000)
+       while((Lectura_Contador_MSeg()<30000)&&(!OK_Recibido))
        {
            if(UART2_DatosPorLeer())
            {
@@ -842,20 +853,20 @@ BOOL AT_CONNECTIONSTART(void)
                for(i=0; i<100; i++) { DatosRecAux[i] = '\0'; }                    //Inicializamos buffer recepción parcial
                UART2_LeerDatos((char *)DatosRecAux, UART2_DatosPorLeer());        //Lectura de datos del buffer UART
                strcat((char *)DatosRecibidos_UART2, (const char *)DatosRecAux);   //Concatenamos datos recibidos en el buffer
+
+               //Buscamos en la respuesta recibida si el comando finalizó con éxito buscando "OK_Info"
+               for(i=0; i<100; i++)
+               {
+                   if((DatosRecibidos_UART2[i] == 'O')&&(DatosRecibidos_UART2[i+1] == 'k')&&(DatosRecibidos_UART2[i+2] == '_')&&
+                      (DatosRecibidos_UART2[i+3] == 'I')&&(DatosRecibidos_UART2[i+4] == 'n')&&(DatosRecibidos_UART2[i+5] == 'f')&&(DatosRecibidos_UART2[i+6] == 'o'))
+                   {
+                       OK_Recibido = TRUE;
+                       break;
+                   }
+               }
            }
        }
 
-       //Buscamos en la respuesta recibida si el comando finalizó con éxito buscando "OK_Info"
-       for(i=0; i<100; i++)
-       {
-           if((DatosRecibidos_UART2[i] == 'O')&&(DatosRecibidos_UART2[i+1] == 'k')&&(DatosRecibidos_UART2[i+2] == '_')&&
-              (DatosRecibidos_UART2[i+3] == 'I')&&(DatosRecibidos_UART2[i+4] == 'n')&&(DatosRecibidos_UART2[i+5] == 'f')&&(DatosRecibidos_UART2[i+6] == 'o'))
-           {
-               OK_Recibido = TRUE;
-               break;
-           }
-       }
-       
        //Se incrementan los reintentos
        Reintentos++;
    }while((OK_Recibido == FALSE)&&(Reintentos < 3));
@@ -889,7 +900,7 @@ BOOL AT_CONNECTIONSTOP(void)
        //Esperamos a recibir todos los datos.. Si pasan 2 segundos sin recibir nada,
        //se entiende que la comunicación finalizó y salimos..
        Reset_Contador_MSeg();
-       while(Lectura_Contador_MSeg()<10000)
+       while((Lectura_Contador_MSeg()<30000)&&(!OK_Recibido))
        {
            if(UART2_DatosPorLeer())
            {
@@ -897,16 +908,16 @@ BOOL AT_CONNECTIONSTOP(void)
                for(i=0; i<100; i++) { DatosRecAux[i] = '\0'; }                    //Inicializamos buffer recepción parcial
                UART2_LeerDatos((char *)DatosRecAux, UART2_DatosPorLeer());        //Lectura de datos del buffer UART
                strcat((char *)DatosRecibidos_UART2, (const char *)DatosRecAux);   //Concatenamos datos recibidos en el buffer
-           }
-       }
 
-       //Buscamos en la respuesta recibida si el comando finalizó con éxito buscando "OK"
-       for(i=0; i<100; i++)
-       {
-           if((DatosRecibidos_UART2[i] == 'O')&&(DatosRecibidos_UART2[i+1] == 'K'))
-           {
-               OK_Recibido = TRUE;
-               break;
+               //Buscamos en la respuesta recibida si el comando finalizó con éxito buscando "OK"
+               for(i=0; i<100; i++)
+               {
+                   if((DatosRecibidos_UART2[i] == 'O')&&(DatosRecibidos_UART2[i+1] == 'K'))
+                   {
+                       OK_Recibido = TRUE;
+                       break;
+                   }
+               }
            }
        }
 
@@ -939,10 +950,10 @@ BOOL AT_OTCP(void)
        //Envío del comando
        UART2_Envia_Cadena(COM_AT);
 
-       //Esperamos a recibir todos los datos.. Si pasan 2 segundos sin recibir nada,
+       //Esperamos a recibir todos los datos.. Si pasa un tiempo sin recibir nada,
        //se entiende que la comunicación finalizó y salimos..
        Reset_Contador_MSeg();
-       while(Lectura_Contador_MSeg()<10000)
+       while((Lectura_Contador_MSeg()<30000)&&(!OK_Recibido))
        {
            if(UART2_DatosPorLeer())
            {
@@ -950,17 +961,17 @@ BOOL AT_OTCP(void)
                for(i=0; i<100; i++) { DatosRecAux[i] = '\0'; }                    //Inicializamos buffer recepción parcial
                UART2_LeerDatos((char *)DatosRecAux, UART2_DatosPorLeer());        //Lectura de datos del buffer UART
                strcat((char *)DatosRecibidos_UART2, (const char *)DatosRecAux);   //Concatenamos datos recibidos en el buffer
-           }
-       }
 
-       //Buscamos en la respuesta recibida si el comando finalizó con éxito buscando "OK_Info"
-       for(i=0; i<100; i++)
-       {
-           if((DatosRecibidos_UART2[i] == 'O')&&(DatosRecibidos_UART2[i+1] == 'k')&&(DatosRecibidos_UART2[i+2] == '_')&&
-              (DatosRecibidos_UART2[i+3] == 'I')&&(DatosRecibidos_UART2[i+4] == 'n')&&(DatosRecibidos_UART2[i+5] == 'f')&&(DatosRecibidos_UART2[i+6] == 'o'))
-           {
-               OK_Recibido = TRUE;
-               break;
+               //Buscamos en la respuesta recibida si el comando finalizó con éxito buscando "OK_Info"
+               for(i=0; i<100; i++)
+               {
+                   if((DatosRecibidos_UART2[i] == 'O')&&(DatosRecibidos_UART2[i+1] == 'k')&&(DatosRecibidos_UART2[i+2] == '_')&&
+                      (DatosRecibidos_UART2[i+3] == 'I')&&(DatosRecibidos_UART2[i+4] == 'n')&&(DatosRecibidos_UART2[i+5] == 'f')&&(DatosRecibidos_UART2[i+6] == 'o'))
+                   {
+                       OK_Recibido = TRUE;
+                       break;
+                   }
+               }
            }
        }
 
@@ -995,10 +1006,10 @@ BOOL Caracter_ETX(void)
        //Envío del comando
        UART2_Envia_Cadena(COM_AT);
 
-       //Esperamos a recibir todos los datos.. Si pasan 2 segundos sin recibir nada,
+       //Esperamos a recibir todos los datos.. Si pasa un tiempo sin recibir nada,
        //se entiende que la comunicación finalizó y salimos..
        Reset_Contador_MSeg();
-       while(Lectura_Contador_MSeg()<5000)
+       while((Lectura_Contador_MSeg()<30000)&&(!OK_Recibido))
        {
            if(UART2_DatosPorLeer())
            {
@@ -1006,17 +1017,17 @@ BOOL Caracter_ETX(void)
                for(i=0; i<100; i++) { DatosRecAux[i] = '\0'; }                    //Inicializamos buffer recepción parcial
                UART2_LeerDatos((char *)DatosRecAux, UART2_DatosPorLeer());        //Lectura de datos del buffer UART
                strcat((char *)DatosRecibidos_UART2, (const char *)DatosRecAux);   //Concatenamos datos recibidos en el buffer
-           }
-       }
 
-       //Buscamos en la respuesta recibida si el comando finalizó con éxito buscando "OK_Info"
-       for(i=0; i<100; i++)
-       {
-           if((DatosRecibidos_UART2[i] == 'O')&&(DatosRecibidos_UART2[i+1] == 'k')&&(DatosRecibidos_UART2[i+2] == '_')&&
-              (DatosRecibidos_UART2[i+3] == 'I')&&(DatosRecibidos_UART2[i+4] == 'n')&&(DatosRecibidos_UART2[i+5] == 'f')&&(DatosRecibidos_UART2[i+6] == 'o'))
-           {
-               OK_Recibido = TRUE;
-               break;
+               //Buscamos en la respuesta recibida si el comando finalizó con éxito buscando "OK_Info"
+               for(i=0; i<100; i++)
+               {
+                   if((DatosRecibidos_UART2[i] == 'O')&&(DatosRecibidos_UART2[i+1] == 'k')&&(DatosRecibidos_UART2[i+2] == '_')&&
+                      (DatosRecibidos_UART2[i+3] == 'I')&&(DatosRecibidos_UART2[i+4] == 'n')&&(DatosRecibidos_UART2[i+5] == 'f')&&(DatosRecibidos_UART2[i+6] == 'o'))
+                   {
+                       OK_Recibido = TRUE;
+                       break;
+                   }
+               }
            }
        }
 
@@ -1064,10 +1075,10 @@ CALIDAD_COBERTURA AT_CSQ()
        //Envío del comando
        UART2_Envia_Cadena(COM_AT);
 
-       //Esperamos a recibir todos los datos.. Si pasan 2 segundos sin recibir nada,
+       //Esperamos a recibir todos los datos.. Si pasan un tiempo sin recibir nada,
        //se entiende que la comunicación finalizó y salimos..
        Reset_Contador_MSeg();
-       while(Lectura_Contador_MSeg()<2000)
+       while((Lectura_Contador_MSeg()<5000)&&(!OK_Recibido))
        {
            if(UART2_DatosPorLeer())
            {
@@ -1075,16 +1086,16 @@ CALIDAD_COBERTURA AT_CSQ()
                for(i=0; i<100; i++) { DatosRecAux[i] = '\0'; }                    //Inicializamos buffer recepción parcial
                UART2_LeerDatos((char *)DatosRecAux, UART2_DatosPorLeer());        //Lectura de datos del buffer UART
                strcat((char *)DatosRecibidos_UART2, (const char *)DatosRecAux);   //Concatenamos datos recibidos en el buffer
-           }
-       }
 
-       //Buscamos en la respuesta recibida si el comando finalizó con éxito buscando "OK"
-       for(i=0; i<100; i++)
-       {
-           if((DatosRecibidos_UART2[i] == 'O')&&(DatosRecibidos_UART2[i+1] == 'K'))
-           {
-               OK_Recibido = TRUE;
-               break;
+               //Buscamos en la respuesta recibida si el comando finalizó con éxito buscando "OK"
+               for(i=0; i<100; i++)
+               {
+                   if((DatosRecibidos_UART2[i] == 'O')&&(DatosRecibidos_UART2[i+1] == 'K'))
+                   {
+                       OK_Recibido = TRUE;
+                       break;
+                   }
+               }
            }
        }
 
