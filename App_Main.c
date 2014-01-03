@@ -12,6 +12,7 @@
 #include "Rele.h"
 #include "MenuOperario.h"
 #include "Reloj_RTCC.h"
+#include "Modem.h"
 
 
 //********************************************************************************************************************    
@@ -138,6 +139,11 @@ void Procesa_Evento_Sensores_Bateria()
     SENSORES Muestra;
     WORD Dir_Sig_E2P_Libre = 0;
     BOOL EEPROM_Llena = FALSE;
+    BYTE cnt = 0;
+    BYTE Info[3] = {'\0','\0','\0'}; //Cuenta regresiva
+    CALIDAD_COBERTURA CalidadCobertura;
+    BYTE Reintentos = 0;
+    BOOL RegistroPIN = FALSE;
 
     //Preparación de la comunicación con la memoria
     Inicializacion_Modulo_EEPROM();
@@ -237,14 +243,242 @@ void Procesa_Evento_Sensores_Bateria()
            //Comprobación si corresponde enviar las muestras via modem.
            if((EEPROM_Llena)||(Si_Realizar_Envio_Muestras_Modem()))
            {
+               Cierra_Com_Modem(); //Para no recibir la información enviada al alimentar el modem.
                MODEM_ON;
+
+               //Cuenta regresiva para inicialización del modem tras alimentación
                LCD_Clear();
-               LCD_WriteLinea(LCD_LINEA1, (unsigned char*)"MODEM HABILITADO");
-               LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Enviando Datos..");
+               LCD_WriteLinea(LCD_LINEA1, (unsigned char*)"INICIANDO MODEM ");
+               LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Espere..  10 seg");
+               for(cnt=9; cnt!=0; cnt--)
+               {
+                   Retardo(1000);
+                   Info[0] = ' ';
+                   Info[1] = 0x30 + cnt;
+                   LCD_WrString_LinPos(LCD_LINEA2,10,Info);
+               }
+
+               //REGISTRO EN LA RED DEL MODEM///////////////////////////////////
+               Inicializacion_Com_Modem();
+               LCD_Clear();
+               LCD_WriteLinea(LCD_LINEA1, (unsigned char*)"REGISTRO RED GSM");
+               LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Buscando modem..");
+
+               //Comprobación si el modem está en línea de comandos
+               if(!AT())
+               {
+                   LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Comunicacion NOK");
+                   Retardo(5000);
+                   MODEM_OFF;
+                   return;
+               }
                Retardo(1000);
+               //Comprobación de la cobertura
+               LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Cobertura:      ");
+               CalidadCobertura=AT_CSQ();
+               if(CalidadCobertura < INTENSIDAD_BUENA)
+               {
+                   LCD_WrString_LinPos(LCD_LINEA2, 13, (unsigned char*)"NOK");
+                   Retardo(5000);
+                   MODEM_OFF;
+                   return;
+               }
+               else
+               {
+                   if(CalidadCobertura == INTENSIDAD_BUENA){LCD_WrString_LinPos(LCD_LINEA2, 11, (unsigned char*)"BUENA"); Retardo(500);}
+                   else{LCD_WrString_LinPos(LCD_LINEA2, 11, (unsigned char*)"EXCNT"); Retardo(500);}
+               }
+               Retardo(1000);
+               //Insercción del PIN para red GSM
+               LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Insertando PIN..");
+               if(!AT_CREG())
+               {
+                   AT_CPIN((unsigned char*)"8189");
+                   do
+                   {
+                       RegistroPIN = AT_CREG();
+                       Reintentos++;
+                   }
+                   while((!RegistroPIN) && (Reintentos < 100));
+                   if(RegistroPIN)
+                   {
+                       LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"PIN OK          ");
+                       Retardo(500);
+                   }
+                   else
+                   {
+                       LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"PIN NOK         ");
+                       Retardo(5000);
+                       MODEM_OFF;
+                       return;
+                   }
+               }
+               Retardo(1000);
+
+               //CONFIGURACION CONEXION INTERNET DEL MODEM///////////////////////////////////
+               LCD_WriteLinea(LCD_LINEA1, (unsigned char*)"CONFIG. CONEXION");
+               LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Activar pila TCP");
+               //Arranque de la pila TCP/IP del modem
+               if(!AT_WOPEN('1'))
+               {
+                   LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Fallo!          ");
+                   Retardo(5000);
+                   MODEM_OFF;
+                   return;
+               }
+               Retardo(1000);
+               //Configuración del modem a modo GPRS
+               LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Activar mod.GPRS");
+               if(!AT_GPRSMODE('1'))
+               {
+                   LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Fallo!          ");
+                   Retardo(5000);
+                   MODEM_OFF;
+                   return;
+               }
+               Retardo(1000);
+               //Configuración punto de acceso a internet: Servidor
+               LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Conf. Serv. APN ");
+               if(!AT_APNSERV((unsigned char*)"movistar.es"))
+               {
+                   LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Fallo!          ");
+                   Retardo(5000);
+                   MODEM_OFF;
+                   return;
+               }
+               Retardo(1000);
+               //Configuración punto de acceso a internet: Usuario
+               LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Conf.Usuario APN");
+               if(!AT_APNUN((unsigned char*)"movistar.es"))
+               {
+                   LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Fallo!          ");
+                   Retardo(5000);
+                   MODEM_OFF;
+                   return;
+               }
+               Retardo(1000);
+               //Configuración punto de acceso a internet: Password
+               LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Conf.Passw. APN ");
+               if(!AT_APNPW((unsigned char*)""))
+               {
+                   LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Fallo!          ");
+                   Retardo(5000);
+                   MODEM_OFF;
+                   return;
+               }
+               Retardo(1000);
+               //Configuración enlace TCP: Dirección IP
+               LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"TCP: Dir.IP Serv");
+               if(!AT_TCPSERV((unsigned char*)"cessor.no-ip.biz"))
+               {
+                   LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Fallo!          ");
+                   Retardo(5000);
+                   MODEM_OFF;
+                   return;
+               }
+               Retardo(1000);
+               //Configuración enlace TCP: Puerto
+               LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"TCP: Puerto Serv");
+               if(!AT_TCPPORT((unsigned char*)"20000"))
+               {
+                   LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Fallo!          ");
+                   Retardo(5000);
+                   MODEM_OFF;
+                   return;
+               }
+               Retardo(1000);
+               //Configuración enlace TCP: Retardo de transmisión
+               LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"TCP: Delay TXT  ");
+               if(!AT_TCPTXDELAY((unsigned char*)"100"))
+               {
+                   LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Fallo!          ");
+                   Retardo(5000);
+                   MODEM_OFF;
+                   return;
+               }
+               Retardo(1000);
+               //Configuración enlace TCP: Cierre de socket mediante caracter ETX
+               LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"TCP: OFF ETX    ");
+               if(!AT_DLEMODE('1'))
+               {
+                   LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Fallo!          ");
+                   Retardo(5000);
+                   MODEM_OFF;
+                   return;
+               }
+               Retardo(1000);
+
+               //ESTABLECIMIENTO ENLACE TCP CON SERVIDOR///////////////////////////////////
+               LCD_WriteLinea(LCD_LINEA1, (unsigned char*)"ENLACE TCP/IP   ");
+               LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Attach serv.GPRS");
+               //Enlace con el servicio GPRS del APN
+               if(!AT_CGATT('1'))
+               {
+                   LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Fallo!          ");
+                   Retardo(5000);
+                   MODEM_OFF;
+                   return;
+               }
+               Retardo(1000);
+               //Enlace a internet mediante APN
+               LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Asignando IP... ");
+               if(!AT_CONNECTIONSTART())
+               {
+                   LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Fallo!          ");
+                   Retardo(5000);
+                   MODEM_OFF;
+                   return;
+               }
+               Retardo(1000);
+               //Apertura de socket con el servidor Splunk
+               LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Abriendo socket ");
+               if(!AT_OTCP())
+               {
+                   LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Fallo!          ");
+                   Retardo(5000);
+                   MODEM_OFF;
+                   return;
+               }
+               Retardo(1000);
+
+               //Envío de las medidas almacenadas en memoria
+               LCD_WriteLinea(LCD_LINEA1, (unsigned char*)"CONX.ESTABLECIDA");
+               LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Enviando Datos..");
                if(Enviar_Muestras_Modem())
                {
                    Reset_CNT_Muestras_Tomadas();
+                   LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Datos enviandos!");
+                   Retardo(1000);
+               }
+
+               //Cierre de socket con el servidor Splunk
+               LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Cerrando socket ");
+               if(!Caracter_ETX())
+               {
+                   LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Fallo!          ");
+                   Retardo(5000);
+                   MODEM_OFF;
+                   return;
+               }
+               Retardo(1000);
+               //Desconexión a internet mediante APN
+               LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Internet OFF    ");
+               if(!AT_CONNECTIONSTOP())
+               {
+                   LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Fallo!          ");
+                   Retardo(5000);
+                   MODEM_OFF;
+                   return;
+               }
+               Retardo(1000);
+               //Desenlace del servicio GPRS del APN
+               LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Detach serv.GPRS");
+               if(!AT_CGATT('0'))
+               {
+                   LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Fallo!          ");
+                   Retardo(5000);
+                   MODEM_OFF;
+                   return;
                }
                MODEM_OFF;
            }
@@ -401,10 +635,10 @@ void Inicializa_Sistema(void)
     //Puesta en hora del reloj RTC
     Rtcc_Inicializacion();        //Habilita el reloj secundario y coloca el reloj en reposo
     rtccFechaHora FechaHoraReloj;
-    FechaHoraReloj.w[0] = 0x0013; //Anio
-    FechaHoraReloj.w[1] = 0x1223; //Mes - Dia
-    FechaHoraReloj.w[2] = 0x0012; //Dia Semana - Hora (0-lunes, 1-martes..)
-    FechaHoraReloj.w[3] = 0x4100; //Minutos - Segundos
+    FechaHoraReloj.w[0] = 0x0014; //Anio
+    FechaHoraReloj.w[1] = 0x0103; //Mes - Dia
+    FechaHoraReloj.w[2] = 0x0420; //Dia Semana - Hora (0-lunes, 1-martes..)
+    FechaHoraReloj.w[3] = 0x5000; //Minutos - Segundos
     Rtcc_Configuracion_FechaHora_Reloj(&FechaHoraReloj);
     Rtcc_Activacion();  //Activación del reloj. Habilita tambien la interrupción
 
