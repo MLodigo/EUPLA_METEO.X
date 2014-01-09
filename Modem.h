@@ -51,6 +51,7 @@ BOOL AT_TCPPORT(unsigned char*);
 BOOL AT_TCPTXDELAY(unsigned char*);
 BOOL AT_DLEMODE(unsigned char);
 BOOL AT_CGATT(unsigned char);
+BOOL AT_CNUM(void);
 BOOL AT_CONNECTIONSTART(void);
 BOOL AT_CONNECTIONSTOP(void);
 BOOL AT_OTCP(void);

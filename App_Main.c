@@ -163,7 +163,7 @@ void Procesa_Evento_Sensores_Bateria()
     }
 
     //Si el sistema está en modo recuperación de la batería, comprobamos si se vuelve a modo normal de trabajo.
-    if(Si_En_Modo_Recuperacion())
+    if(Modo_Recuperacion())
     {
         if(Nivel < NIVEL_MEDIO_ALTO)
         {
@@ -250,12 +250,13 @@ void Procesa_Evento_Sensores_Bateria()
                LCD_Clear();
                LCD_WriteLinea(LCD_LINEA1, (unsigned char*)"INICIANDO MODEM ");
                LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Espere..  10 seg");
+               Retardo(1000);
                for(cnt=9; cnt!=0; cnt--)
                {
-                   Retardo(1000);
                    Info[0] = ' ';
                    Info[1] = 0x30 + cnt;
                    LCD_WrString_LinPos(LCD_LINEA2,10,Info);
+                   Retardo(1000);
                }
 
                //REGISTRO EN LA RED DEL MODEM///////////////////////////////////
@@ -419,7 +420,17 @@ void Procesa_Evento_Sensores_Bateria()
                    MODEM_OFF;
                    return;
                }
-               Retardo(1000);
+
+               //Esperamos a que el modem se conecte al servicio GPRS
+               RegistroPIN = FALSE;
+               Reintentos = 0;
+               do
+               {
+                   RegistroPIN = AT_CNUM();
+                   Reintentos++;
+               }
+               while((!RegistroPIN) && (Reintentos < 10));
+
                //Enlace a internet mediante APN
                LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Asignando IP... ");
                if(!AT_CONNECTIONSTART())
@@ -636,9 +647,9 @@ void Inicializa_Sistema(void)
     Rtcc_Inicializacion();        //Habilita el reloj secundario y coloca el reloj en reposo
     rtccFechaHora FechaHoraReloj;
     FechaHoraReloj.w[0] = 0x0014; //Anio
-    FechaHoraReloj.w[1] = 0x0103; //Mes - Dia
-    FechaHoraReloj.w[2] = 0x0420; //Dia Semana - Hora (0-lunes, 1-martes..)
-    FechaHoraReloj.w[3] = 0x5000; //Minutos - Segundos
+    FechaHoraReloj.w[1] = 0x0109; //Mes - Dia
+    FechaHoraReloj.w[2] = 0x0220; //Dia Semana - Hora (0-lunes, 1-martes..)
+    FechaHoraReloj.w[3] = 0x3000; //Minutos - Segundos
     Rtcc_Configuracion_FechaHora_Reloj(&FechaHoraReloj);
     Rtcc_Activacion();  //Activación del reloj. Habilita tambien la interrupción
 

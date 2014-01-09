@@ -8,6 +8,7 @@
 #include "string.h"
 #include <stdio.h>
 
+
 /*NOTAS:
 
     1.-Una Muestra se compone de medidas.
@@ -327,6 +328,17 @@ void Formatear_Muestra_SvrSplunk(BYTE* ptrCadenaSplunk, rtccFechaHora timestamp,
     }
     *ptrCadenaSplunk = '%';
     ptrCadenaSplunk++;
+
+    *ptrCadenaSplunk = ',';
+    ptrCadenaSplunk++;
+    *ptrCadenaSplunk = 'I';
+    ptrCadenaSplunk++;
+    *ptrCadenaSplunk = 'D';
+    ptrCadenaSplunk++;
+    *ptrCadenaSplunk = '=';
+    ptrCadenaSplunk++;
+    *ptrCadenaSplunk = '1';
+    ptrCadenaSplunk++;
     
     //Salto de línea///////////////////////////
     *ptrCadenaSplunk = '\r';
@@ -613,18 +625,14 @@ RESPUESTA Si_Realizar_Envio_Muestras_Modem()
 //Función que realiza el envío de toda la información almacenada en memoria, vía modem al centro servidor.
 //********************************************************************************************************************
 BOOL Enviar_Muestras_Modem()
-{
+{ 
     WORD cntDireccion = 0;
     WORD DirFinal = 0;
-
     BYTE CadenaSplunk[100];
     rtccFechaHora Timestamp;
     SENSORES Muestra;
     BYTE Checksum = 0;
     BYTE Checksum_calc = 0;
-
-    //Habilitamos la UART
-    UART2_Configura_Abre();
 
     //Obtenemos el límite hasta donde realizar la lectura de muestras
     DirFinal = Siguiente_Direccion_Libre_EEPROM();
@@ -657,7 +665,6 @@ BOOL Enviar_Muestras_Modem()
             UART2_Envia_Cadena((char*)CadenaSplunk);
         }
     }
-
     return TRUE;
 }
 

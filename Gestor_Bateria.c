@@ -14,7 +14,7 @@
 //********************************************************************************************************************
 //Función que comprueba si el sistema está actualmente en modo de recuperación de la batería.
 //********************************************************************************************************************
-BOOL Si_En_Modo_Recuperacion()
+BOOL Modo_Recuperacion()
 {
     ESTADO_SISTEMA StatusSistema = INDETERMINADO;
     BYTE Reintentos = 0;

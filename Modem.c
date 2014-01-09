@@ -806,7 +806,63 @@ BOOL AT_CGATT(unsigned char valor)
                        OK_Recibido = TRUE;
                        break;
                    }
-                  
+
+               }
+           }
+       }
+
+       //Se incrementan los reintentos
+       Reintentos++;
+   }while((OK_Recibido == FALSE)&&(Reintentos < 3));
+
+   //Final del proceso
+   return OK_Recibido;
+}
+
+//********************************************************************************************************************
+//Función que comprueba si se ha realizado el attach al servicio GPRS. Devuelve ERROR hasta que se finaliza el proceso
+//que es cuando devuelve OK
+//********************************************************************************************************************
+BOOL AT_CNUM(void)
+{
+   BYTE DatosRecibidos_UART2[100];
+   BYTE DatosRecAux[100];
+   BYTE i = 0;
+   BYTE Reintentos = 0;
+   BOOL OK_Recibido = FALSE;
+   char COM_AT[12] = {'A','T','+','C','N','U','M','=','?',0x0D,0x0A,'\0'};
+
+   //Bucle para realizar reintentos
+   do
+   {
+       //Inicializamos buffer de datos
+       for(i=0; i<100; i++) {DatosRecibidos_UART2[i] = '\0';}
+       if(UART2_DatosPorLeer()){UART2_LeerDatos((char *)DatosRecAux, UART2_DatosPorLeer());};
+
+       //Envío del comando
+       UART2_Envia_Cadena(COM_AT);
+
+       //Esperamos a recibir todos los datos.. Si pasa un tiempo sin recibir nada,
+       //se entiende que la comunicación finalizó y salimos..
+       Reset_Contador_MSeg();
+       while((Lectura_Contador_MSeg()<1000)&&(!OK_Recibido))
+       {
+           if(UART2_DatosPorLeer())
+           {
+               Reset_Contador_MSeg();                                             //Reset del contador de tiempo de salida del bucle
+               for(i=0; i<100; i++) { DatosRecAux[i] = '\0'; }                    //Inicializamos buffer recepción parcial
+               UART2_LeerDatos((char *)DatosRecAux, UART2_DatosPorLeer());        //Lectura de datos del buffer UART
+               strcat((char *)DatosRecibidos_UART2, (const char *)DatosRecAux);   //Concatenamos datos recibidos en el buffer
+
+               //En caso de estar attached al servicio GPRS, lo indica la respuesta "OK" si no
+               for(i=0; i<100; i++)
+               {
+                  if((DatosRecibidos_UART2[i] == 'O')&&(DatosRecibidos_UART2[i+1] == 'K'))
+                   {
+                       OK_Recibido = TRUE;
+                       break;
+                   }
+
                }
            }
        }
@@ -854,11 +910,13 @@ BOOL AT_CONNECTIONSTART(void)
                UART2_LeerDatos((char *)DatosRecAux, UART2_DatosPorLeer());        //Lectura de datos del buffer UART
                strcat((char *)DatosRecibidos_UART2, (const char *)DatosRecAux);   //Concatenamos datos recibidos en el buffer
 
-               //Buscamos en la respuesta recibida si el comando finalizó con éxito buscando "OK_Info"
+               //Buscamos en la respuesta recibida si el comando finalizó con éxito buscando "GprsActivation"
                for(i=0; i<100; i++)
                {
-                   if((DatosRecibidos_UART2[i] == 'O')&&(DatosRecibidos_UART2[i+1] == 'k')&&(DatosRecibidos_UART2[i+2] == '_')&&
-                      (DatosRecibidos_UART2[i+3] == 'I')&&(DatosRecibidos_UART2[i+4] == 'n')&&(DatosRecibidos_UART2[i+5] == 'f')&&(DatosRecibidos_UART2[i+6] == 'o'))
+                   if((DatosRecibidos_UART2[i] == 'G')&&(DatosRecibidos_UART2[i+1] == 'p')&&(DatosRecibidos_UART2[i+2] == 'r')&&(DatosRecibidos_UART2[i+3] == 's')&&
+                      (DatosRecibidos_UART2[i+4] == 'A')&&(DatosRecibidos_UART2[i+5] == 'c')&&(DatosRecibidos_UART2[i+6] == 't')&&(DatosRecibidos_UART2[i+7] == 'i')&&
+                      (DatosRecibidos_UART2[i+8] == 'v')&&(DatosRecibidos_UART2[i+9] == 'a')&&(DatosRecibidos_UART2[i+10] == 't')&&(DatosRecibidos_UART2[i+11] == 'i')&&
+                      (DatosRecibidos_UART2[i+12] == 'o')&&(DatosRecibidos_UART2[i+13] == 'n'))
                    {
                        OK_Recibido = TRUE;
                        break;
@@ -962,11 +1020,11 @@ BOOL AT_OTCP(void)
                UART2_LeerDatos((char *)DatosRecAux, UART2_DatosPorLeer());        //Lectura de datos del buffer UART
                strcat((char *)DatosRecibidos_UART2, (const char *)DatosRecAux);   //Concatenamos datos recibidos en el buffer
 
-               //Buscamos en la respuesta recibida si el comando finalizó con éxito buscando "OK_Info"
+               //Buscamos en la respuesta recibida si el comando finalizó con éxito buscando "ForData"
                for(i=0; i<100; i++)
                {
-                   if((DatosRecibidos_UART2[i] == 'O')&&(DatosRecibidos_UART2[i+1] == 'k')&&(DatosRecibidos_UART2[i+2] == '_')&&
-                      (DatosRecibidos_UART2[i+3] == 'I')&&(DatosRecibidos_UART2[i+4] == 'n')&&(DatosRecibidos_UART2[i+5] == 'f')&&(DatosRecibidos_UART2[i+6] == 'o'))
+                   if((DatosRecibidos_UART2[i] == 'F')&&(DatosRecibidos_UART2[i+1] == 'o')&&(DatosRecibidos_UART2[i+2] == 'r')&&
+                      (DatosRecibidos_UART2[i+3] == 'D')&&(DatosRecibidos_UART2[i+4] == 'a')&&(DatosRecibidos_UART2[i+5] == 't')&&(DatosRecibidos_UART2[i+6] == 'a'))
                    {
                        OK_Recibido = TRUE;
                        break;
@@ -1018,11 +1076,10 @@ BOOL Caracter_ETX(void)
                UART2_LeerDatos((char *)DatosRecAux, UART2_DatosPorLeer());        //Lectura de datos del buffer UART
                strcat((char *)DatosRecibidos_UART2, (const char *)DatosRecAux);   //Concatenamos datos recibidos en el buffer
 
-               //Buscamos en la respuesta recibida si el comando finalizó con éxito buscando "OK_Info"
+               //Buscamos en la respuesta recibida si el comando finalizó con éxito buscando "OK"
                for(i=0; i<100; i++)
                {
-                   if((DatosRecibidos_UART2[i] == 'O')&&(DatosRecibidos_UART2[i+1] == 'k')&&(DatosRecibidos_UART2[i+2] == '_')&&
-                      (DatosRecibidos_UART2[i+3] == 'I')&&(DatosRecibidos_UART2[i+4] == 'n')&&(DatosRecibidos_UART2[i+5] == 'f')&&(DatosRecibidos_UART2[i+6] == 'o'))
+                   if((DatosRecibidos_UART2[i] == 'O')&&(DatosRecibidos_UART2[i+1] == 'K'))
                    {
                        OK_Recibido = TRUE;
                        break;

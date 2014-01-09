@@ -34,7 +34,7 @@ typedef enum _ESTADOSISTEM
 //////////////////////////////////////////////////////////////    
 //METODOS PUBLICOS   Definición de funciones o prototipos
 //////////////////////////////////////////////////////////////
-BOOL Si_En_Modo_Recuperacion(void);
+BOOL Modo_Recuperacion(void);
 NIVEL_BATERIA Comprobacion_Estado_Bateria(void);
 BOOL Activar_Modo_Recuperacion(void);
 BOOL Desactivar_Modo_Recuperacion(void);
