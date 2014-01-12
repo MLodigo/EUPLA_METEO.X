@@ -154,24 +154,24 @@ void Procesa_Evento_Sensores_Bateria()
 
     //Si la batería está a nivel mínimo, entramos en modo recuperación.
     //Se implementa un ciclo de histéresis que va desde el nivel bajo al nivel medio-alto
-    if(Nivel == NIVEL_BAJO)
+    if((Nivel == NIVEL_BAJO)&&(!Modo_Recuperacion()))
     {
        Activar_Modo_Recuperacion();
        LEDs_ON;
        LCD_Clear();
-       LCD_WriteLinea(LCD_LINEA1, (unsigned char*)"Batería Baja!   ");
-       LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Recuperacion ON ");
+       LCD_WriteLinea(LCD_LINEA1, (unsigned char*)"Bateria Baja!   ");
+       LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Enviando aviso..");
        Retardo(1500);
     }
 
     //Si el sistema está en modo recuperación de la batería, comprobamos si se vuelve a modo normal de trabajo.
     if(Modo_Recuperacion())
     {
+        LEDs_OFF;
         LCD_Clear();
         //Si todavía está por debajo del nivel medio-alto, seguimos en estado de recuperación de batería.
         if(Nivel < NIVEL_MEDIO_ALTO)
         {
-           LEDs_ON;
            LCD_WriteLinea(LCD_LINEA1, (unsigned char*)"Recuperando...  ");
            
         }
@@ -180,8 +180,12 @@ void Procesa_Evento_Sensores_Bateria()
            Desactivar_Modo_Recuperacion();
            LCD_WriteLinea(LCD_LINEA1, (unsigned char*)"Bateria OK!     ");
         }
-
+        //Se muestra en nivel de la batería en porcentaje en el display y en los LED's
         LCD_WriteLinea(LCD_LINEA2, Porcentaje_Nivel_Bateria(Nivel));
+        if(Nivel == NIVEL_BAJO){LED3_ON;LED4_ON;}
+        else if(Nivel == NIVEL_MEDIO_BAJO){LED3_ON;LED4_ON;LED5_ON;LED6_ON;}
+        else if(Nivel == NIVEL_MEDIO){LED3_ON;LED4_ON;LED5_ON;LED6_ON;LED7_ON;LED8_ON;}
+        else{LED3_ON;LED4_ON;LED5_ON;LED6_ON;LED7_ON;LED8_ON;LED9_ON;LED10_ON;}
         Retardo(1500);
     }
     else
@@ -750,7 +754,7 @@ void Procesa_Evento_Despierte(void)
    else
    {
        LED6_ON;
-       Procesa_Evento_UART();
+       //Procesa_Evento_UART();
    }
 
    //Limpieza de todas banderas del RCON: POR=0, BOR=0, SLEEP=0, WDTO=0, SWR=0, EXTR=0

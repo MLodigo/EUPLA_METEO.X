@@ -169,4 +169,8 @@ unsigned char* Porcentaje_Nivel_Bateria(NIVEL_BATERIA nivel)
     {
         return (unsigned char*) "Bateria: 95%    ";
     }
+    else
+    {
+        return (unsigned char*) "Bateria: 100%   ";
+    }
 }
