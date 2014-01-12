@@ -845,7 +845,7 @@ BOOL AT_CNUM(void)
        //Esperamos a recibir todos los datos.. Si pasa un tiempo sin recibir nada,
        //se entiende que la comunicación finalizó y salimos..
        Reset_Contador_MSeg();
-       while((Lectura_Contador_MSeg()<1000)&&(!OK_Recibido))
+       while((Lectura_Contador_MSeg()<2000)&&(!OK_Recibido))
        {
            if(UART2_DatosPorLeer())
            {
@@ -901,7 +901,7 @@ BOOL AT_CONNECTIONSTART(void)
        //Esperamos a recibir todos los datos.. Si pasa un tiempo sin recibir nada,
        //se entiende que la comunicación finalizó y salimos..
        Reset_Contador_MSeg();
-       while((Lectura_Contador_MSeg()<30000)&&(!OK_Recibido))
+       while((Lectura_Contador_MSeg()<5000)&&(!OK_Recibido))
        {
            if(UART2_DatosPorLeer())
            {

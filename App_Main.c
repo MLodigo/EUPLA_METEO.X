@@ -144,6 +144,7 @@ void Procesa_Evento_Sensores_Bateria()
     CALIDAD_COBERTURA CalidadCobertura;
     BYTE Reintentos = 0;
     BOOL RegistroPIN = FALSE;
+    BOOL AttachServGPRS = FALSE;
 
     //Preparación de la comunicación con la memoria
     Inicializacion_Modulo_EEPROM();
@@ -151,7 +152,8 @@ void Procesa_Evento_Sensores_Bateria()
     //Se revisa el nivel de la batería
     NIVEL_BATERIA Nivel = Comprobacion_Estado_Bateria();
 
-    //Si la batería está a nivel mínimo, entramos en modo recuperación
+    //Si la batería está a nivel mínimo, entramos en modo recuperación.
+    //Se implementa un ciclo de histéresis que va desde el nivel bajo al nivel medio-alto
     if(Nivel == NIVEL_BAJO)
     {
        Activar_Modo_Recuperacion();
@@ -165,22 +167,22 @@ void Procesa_Evento_Sensores_Bateria()
     //Si el sistema está en modo recuperación de la batería, comprobamos si se vuelve a modo normal de trabajo.
     if(Modo_Recuperacion())
     {
+        LCD_Clear();
+        //Si todavía está por debajo del nivel medio-alto, seguimos en estado de recuperación de batería.
         if(Nivel < NIVEL_MEDIO_ALTO)
         {
            LEDs_ON;
-           LCD_Clear();
            LCD_WriteLinea(LCD_LINEA1, (unsigned char*)"Recuperando...  ");
-           LCD_WriteLinea(LCD_LINEA2, Porcentaje_Nivel_Bateria(Nivel));
-           Retardo(1500);
+           
         }
         else
         {
            Desactivar_Modo_Recuperacion();
-           LCD_Clear();
-           LCD_WriteLinea(LCD_LINEA1, (unsigned char*)"Recuperado..!   ");
-           LCD_WriteLinea(LCD_LINEA2, Porcentaje_Nivel_Bateria(Nivel));
-           Retardo(1500);
+           LCD_WriteLinea(LCD_LINEA1, (unsigned char*)"Bateria OK!     ");
         }
+
+        LCD_WriteLinea(LCD_LINEA2, Porcentaje_Nivel_Bateria(Nivel));
+        Retardo(1500);
     }
     else
     {
@@ -420,17 +422,21 @@ void Procesa_Evento_Sensores_Bateria()
                    MODEM_OFF;
                    return;
                }
-
                //Esperamos a que el modem se conecte al servicio GPRS
-               RegistroPIN = FALSE;
                Reintentos = 0;
                do
                {
-                   RegistroPIN = AT_CNUM();
+                   AttachServGPRS = AT_CNUM();
                    Reintentos++;
                }
-               while((!RegistroPIN) && (Reintentos < 10));
-
+               while((!AttachServGPRS) && (Reintentos < 20));
+               if(Reintentos==20)
+               {
+                   LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Fallo!          ");
+                   Retardo(5000);
+                   MODEM_OFF;
+                   return;
+               }
                //Enlace a internet mediante APN
                LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Asignando IP... ");
                if(!AT_CONNECTIONSTART())
@@ -451,7 +457,6 @@ void Procesa_Evento_Sensores_Bateria()
                    return;
                }
                Retardo(1000);
-
                //Envío de las medidas almacenadas en memoria
                LCD_WriteLinea(LCD_LINEA1, (unsigned char*)"CONX.ESTABLECIDA");
                LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Enviando Datos..");
@@ -461,13 +466,17 @@ void Procesa_Evento_Sensores_Bateria()
                    LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Datos enviandos!");
                    Retardo(1000);
                }
-
+               else
+               {
+                   LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Fallo!          ");
+                   Retardo(5000);
+                   MODEM_OFF;
+                   return;
+               }
                //Cierre de socket con el servidor Splunk
                LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Cerrando socket ");
                if(!Caracter_ETX())
                {
-                   LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Fallo!          ");
-                   Retardo(5000);
                    MODEM_OFF;
                    return;
                }
@@ -476,8 +485,6 @@ void Procesa_Evento_Sensores_Bateria()
                LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Internet OFF    ");
                if(!AT_CONNECTIONSTOP())
                {
-                   LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Fallo!          ");
-                   Retardo(5000);
                    MODEM_OFF;
                    return;
                }
@@ -486,8 +493,6 @@ void Procesa_Evento_Sensores_Bateria()
                LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Detach serv.GPRS");
                if(!AT_CGATT('0'))
                {
-                   LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Fallo!          ");
-                   Retardo(5000);
                    MODEM_OFF;
                    return;
                }
@@ -647,9 +652,9 @@ void Inicializa_Sistema(void)
     Rtcc_Inicializacion();        //Habilita el reloj secundario y coloca el reloj en reposo
     rtccFechaHora FechaHoraReloj;
     FechaHoraReloj.w[0] = 0x0014; //Anio
-    FechaHoraReloj.w[1] = 0x0109; //Mes - Dia
-    FechaHoraReloj.w[2] = 0x0220; //Dia Semana - Hora (0-lunes, 1-martes..)
-    FechaHoraReloj.w[3] = 0x3000; //Minutos - Segundos
+    FechaHoraReloj.w[1] = 0x0112; //Mes - Dia
+    FechaHoraReloj.w[2] = 0x0616; //Dia Semana - Hora (0-lunes, 1-martes..)
+    FechaHoraReloj.w[3] = 0x3100; //Minutos - Segundos
     Rtcc_Configuracion_FechaHora_Reloj(&FechaHoraReloj);
     Rtcc_Activacion();  //Activación del reloj. Habilita tambien la interrupción
 

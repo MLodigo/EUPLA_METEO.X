@@ -1,6 +1,9 @@
 
 #include "Gestor_Sensores.h"
 #include "Gestor_EEPROM.h"
+
+
+#include "Temporizacion.h"
 #include "ADC.h"
 #include "UART.h"
 #include "Reloj_RTCC.h"
@@ -664,6 +667,7 @@ BOOL Enviar_Muestras_Modem()
             Formatear_Muestra_SvrSplunk(CadenaSplunk, Timestamp, Muestra);
             UART2_Envia_Cadena((char*)CadenaSplunk);
         }
+        Retardo(500);
     }
     return TRUE;
 }
