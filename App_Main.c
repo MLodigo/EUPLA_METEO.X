@@ -35,6 +35,7 @@ void Procesa_Evento_UART(void);
 void Procesa_Evento_Sensores_Bateria(void);
 void Ejecuta_Peticion_Recibida(char * Comando);
 void Visualiza_Ultima_Muestra_LCD(SENSORES);
+BOOL Inicializa_Modem_SMS(void);
 
 //********************************************************************************************************************
 //Función que muestra en el display el mensaje inicial al arrancar el sistema.
@@ -158,10 +159,21 @@ void Procesa_Evento_Sensores_Bateria()
     {
        Activar_Modo_Recuperacion();
        LEDs_ON;
+       
+       //Envío de SMS de aviso
        LCD_Clear();
        LCD_WriteLinea(LCD_LINEA1, (unsigned char*)"Bateria Baja!   ");
-       LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Enviando aviso..");
-       Retardo(1500);
+       LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Enviando SMS..  ");
+       Retardo(1000);
+       if(!Inicializa_Modem_SMS())
+       {
+           MODEM_OFF;
+           return;
+       }
+       AT_CMGS((unsigned char*)"Nivel bajo de batería. Modo Recuperación ACTIVADO.");
+
+       //Finalizamos desconectando el módem
+       MODEM_OFF;
     }
 
     //Si el sistema está en modo recuperación de la batería, comprobamos si se vuelve a modo normal de trabajo.
@@ -179,6 +191,14 @@ void Procesa_Evento_Sensores_Bateria()
         {
            Desactivar_Modo_Recuperacion();
            LCD_WriteLinea(LCD_LINEA1, (unsigned char*)"Bateria OK!     ");
+           LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Enviando SMS..  ");
+           Retardo(1000);
+           if(!Inicializa_Modem_SMS())
+           {
+               MODEM_OFF;
+               return;
+           }
+           AT_CMGS((unsigned char*)"Nivel de batería correcto. Modo Recuperación DESACTIVADO.");
         }
         //Se muestra en nivel de la batería en porcentaje en el display y en los LED's
         LCD_WriteLinea(LCD_LINEA2, Porcentaje_Nivel_Bateria(Nivel));
@@ -298,28 +318,28 @@ void Procesa_Evento_Sensores_Bateria()
                Retardo(1000);
                //Insercción del PIN para red GSM
                LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Insertando PIN..");
-               if(!AT_CREG())
+               
+               AT_CPIN((unsigned char*)"8189");
+               Retardo(1000);
+               do
                {
-                   AT_CPIN((unsigned char*)"8189");
-                   do
-                   {
-                       RegistroPIN = AT_CREG();
-                       Reintentos++;
-                   }
-                   while((!RegistroPIN) && (Reintentos < 100));
-                   if(RegistroPIN)
-                   {
-                       LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"PIN OK          ");
-                       Retardo(500);
-                   }
-                   else
-                   {
-                       LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"PIN NOK         ");
-                       Retardo(5000);
-                       MODEM_OFF;
-                       return;
-                   }
+                   RegistroPIN = AT_CREG();
+                   Reintentos++;
                }
+               while((!RegistroPIN) && (Reintentos < 100));
+               if(RegistroPIN)
+               {
+                   LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"PIN OK          ");
+                   Retardo(500);
+               }
+               else
+               {
+                   LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"PIN NOK         ");
+                   Retardo(5000);
+                   MODEM_OFF;
+                   return;
+               }
+               
                Retardo(1000);
 
                //CONFIGURACION CONEXION INTERNET DEL MODEM///////////////////////////////////
@@ -441,6 +461,7 @@ void Procesa_Evento_Sensores_Bateria()
                    MODEM_OFF;
                    return;
                }
+               Retardo(200);
                //Enlace a internet mediante APN
                LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Asignando IP... ");
                if(!AT_CONNECTIONSTART())
@@ -636,6 +657,106 @@ void Visualiza_Ultima_Muestra_LCD(SENSORES Muestra)
     Retardo(10000);
 
 }
+
+//********************************************************************************************************************
+//Función que posiciona el módem configurado para realizar el envío de mensajes SMS.
+//********************************************************************************************************************
+BOOL Inicializa_Modem_SMS(void)
+{
+    BYTE cnt = 0;
+    BYTE Info[3] = {'\0','\0','\0'}; //Cuenta regresiva
+    CALIDAD_COBERTURA CalidadCobertura;
+    BYTE Reintentos = 0;
+    BOOL RegistroPIN = FALSE;
+    BOOL AttachServGPRS = FALSE;
+
+   //Alimentación del modem activada
+   Cierra_Com_Modem();
+   MODEM_ON;
+
+   //Cuenta regresiva para inicialización del modem tras alimentación
+   LCD_Clear();
+   LCD_WriteLinea(LCD_LINEA1, (unsigned char*)"INICIANDO MODEM ");
+   LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Espere..  10 seg");
+   Retardo(1000);
+   for(cnt=9; cnt!=0; cnt--)
+   {
+       Info[0] = ' ';
+       Info[1] = 0x30 + cnt;
+       LCD_WrString_LinPos(LCD_LINEA2,10,Info);
+       Retardo(1000);
+   }
+
+   //REGISTRO EN LA RED DEL MODEM///////////////////////////////////
+   Inicializacion_Com_Modem();
+   LCD_Clear();
+   LCD_WriteLinea(LCD_LINEA1, (unsigned char*)"REGISTRO RED GSM");
+   LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Buscando modem..");
+
+   //Comprobación si el modem está en línea de comandos
+   if(!AT())
+   {
+       LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Comunicacion NOK");
+       Retardo(5000);
+       return FALSE;
+   }
+   //Comprobación de la cobertura
+   LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Cobertura:      ");
+   CalidadCobertura=AT_CSQ();
+   if(CalidadCobertura < INTENSIDAD_BUENA)
+   {
+       LCD_WrString_LinPos(LCD_LINEA2, 13, (unsigned char*)"NOK");
+       Retardo(5000);
+       return FALSE;
+   }
+   else
+   {
+       if(CalidadCobertura == INTENSIDAD_BUENA){LCD_WrString_LinPos(LCD_LINEA2, 11, (unsigned char*)"BUENA"); Retardo(500);}
+       else{LCD_WrString_LinPos(LCD_LINEA2, 11, (unsigned char*)"EXCNT"); Retardo(500);}
+   }
+   //Insercción del PIN para red GSM
+   LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Insertando PIN..");
+   AT_CPIN((unsigned char*)"8189");
+   Retardo(1000);
+   do
+   {
+       RegistroPIN = AT_CREG();
+       Reintentos++;
+   }
+   while((!RegistroPIN) && (Reintentos < 100));
+   if(RegistroPIN)
+   {
+       LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"PIN OK          ");
+       Retardo(500);
+   }
+   else
+   {
+       LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"PIN NOK         ");
+       Retardo(5000);
+       return FALSE;
+   }
+   
+   Retardo(1000);
+   //Esperamos a que el modem se estabilice en la red GSM/GPRS
+   LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Congif. GSM/GPRS");
+   Reintentos = 0;
+   do
+   {
+       AttachServGPRS = AT_CNUM();
+       Reintentos++;
+   }
+   while((!AttachServGPRS) && (Reintentos < 20));
+   if(Reintentos==20)
+   {
+       LCD_WriteLinea(LCD_LINEA2, (unsigned char*)"Fallo!          ");
+       Retardo(5000);
+       return FALSE;
+   }
+
+   //Si se llegó aquí, es que todo fue correctamente
+   return TRUE;
+}
+
 //********************************************************************************************************************
 //********************************************************************************************************************
 //                                                METODOS PUBLICOS
@@ -656,9 +777,9 @@ void Inicializa_Sistema(void)
     Rtcc_Inicializacion();        //Habilita el reloj secundario y coloca el reloj en reposo
     rtccFechaHora FechaHoraReloj;
     FechaHoraReloj.w[0] = 0x0014; //Anio
-    FechaHoraReloj.w[1] = 0x0112; //Mes - Dia
-    FechaHoraReloj.w[2] = 0x0616; //Dia Semana - Hora (0-lunes, 1-martes..)
-    FechaHoraReloj.w[3] = 0x3100; //Minutos - Segundos
+    FechaHoraReloj.w[1] = 0x0125; //Mes - Dia
+    FechaHoraReloj.w[2] = 0x0510; //Dia Semana - Hora (0-lunes, 1-martes..)
+    FechaHoraReloj.w[3] = 0x5800; //Minutos - Segundos
     Rtcc_Configuracion_FechaHora_Reloj(&FechaHoraReloj);
     Rtcc_Activacion();  //Activación del reloj. Habilita tambien la interrupción
 

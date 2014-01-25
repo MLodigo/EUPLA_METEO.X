@@ -119,7 +119,7 @@ BOOL AT_CREG(void)
        //Esperamos a recibir todos los datos.. Si pasan un tiempo sin recibir nada,
        //se entiende que la comunicación finalizó y salimos..
        Reset_Contador_MSeg();
-       while(Lectura_Contador_MSeg()<300)
+       while(Lectura_Contador_MSeg()<1000)
        {
            if(UART2_DatosPorLeer())
            {
@@ -200,10 +200,11 @@ BOOL AT_CPIN(unsigned char* pin)
                UART2_LeerDatos((char *)DatosRecAux, UART2_DatosPorLeer());        //Lectura de datos del buffer UART
                strcat((char *)DatosRecibidos_UART2, (const char *)DatosRecAux);   //Concatenamos datos recibidos en el buffer
 
-               //Buscamos en la respuesta recibida si el comando finalizó con éxito buscando "OK"
+               //Buscamos en la respuesta recibida si el comando finalizó con éxito buscando "OK" o "+CME ERROR: 3" (Pin ya insertado)
                for(i=0; i<100; i++)
                {
-                   if((DatosRecibidos_UART2[i] == 'O')&&(DatosRecibidos_UART2[i+1] == 'K'))
+                   if(((DatosRecibidos_UART2[i] == 'O')&&(DatosRecibidos_UART2[i+1] == 'K'))||
+                      ((DatosRecibidos_UART2[i] == 'O')&&(DatosRecibidos_UART2[i+1] == 'R')&&(DatosRecibidos_UART2[i+2] == ':')&&(DatosRecibidos_UART2[i+3] == ' ')&&(DatosRecibidos_UART2[i+4] == '3')))
                    {
                        OK_Recibido = TRUE;
                        break;
@@ -218,6 +219,114 @@ BOOL AT_CPIN(unsigned char* pin)
 
    //Final del proceso
    return OK_Recibido;
+}
+
+//********************************************************************************************************************
+//Función que envía el mensaje indicado vía SMS. Ojo! el modem debe estar perfectamente configurado previamente.
+//********************************************************************************************************************
+BOOL AT_CMGS(unsigned char* mensaje)
+{
+   BYTE DatosRecibidos_UART2[100];
+   BYTE DatosRecAux[100];
+   BYTE i = 0;
+   BYTE Reintentos = 0;
+   BOOL MAYOR_QUE_Recibido = FALSE;
+   BOOL OK_Recibido = FALSE;
+   char COM_AT_SMS_I[24] = {'A','T','+','C','M','G','S','=','"','+','3','4','6','7','4','9','5','7','2','3','7','"',0x0D,'\0'}; //Fran
+   char COM_AT_SMS_II[60];
+   BOOL Resultado = FALSE;
+
+   //Inicialización del array mensaje
+   for (i=0; i<60; i++){COM_AT_SMS_II[i]='\0';}
+
+   //Montaje de la información del comando AT
+   strcat((char *)COM_AT_SMS_II, (const char *)mensaje);
+   
+   //Bucle para realizar reintentos
+   do
+   {
+       //Inicializamos buffer de datos
+       for(i=0; i<100; i++) {DatosRecibidos_UART2[i] = '\0';}
+       if(UART2_DatosPorLeer()){UART2_LeerDatos((char *)DatosRecAux, UART2_DatosPorLeer());};
+
+       //Envío de la primera parte del comando
+       UART2_Envia_Cadena(COM_AT_SMS_I);
+
+       //Esperamos a recibir el caracter '>'..
+       Reset_Contador_MSeg();
+       while((Lectura_Contador_MSeg()<5000)&&(!MAYOR_QUE_Recibido))
+       {
+           if(UART2_DatosPorLeer())
+           {
+               Reset_Contador_MSeg();                                             //Reset del contador de tiempo de salida del bucle
+               for(i=0; i<100; i++) { DatosRecAux[i] = '\0'; }                    //Inicializamos buffer recepción parcial
+               UART2_LeerDatos((char *)DatosRecAux, UART2_DatosPorLeer());        //Lectura de datos del buffer UART
+               strcat((char *)DatosRecibidos_UART2, (const char *)DatosRecAux);   //Concatenamos datos recibidos en el buffer
+
+               //Buscamos en la respuesta recibida si el comando finalizó con éxito buscando ">"
+               for(i=0; i<100; i++)
+               {
+                   if(DatosRecibidos_UART2[i] == '>')
+                   {
+                       MAYOR_QUE_Recibido = TRUE;
+                       break;
+                   }
+               }
+           }
+       }
+
+       //Se incrementan los reintentos
+       Reintentos++;
+   }while((MAYOR_QUE_Recibido == FALSE)&&(Reintentos < 3));
+
+
+   //Si finalizó correctamente la primera parte del proceso, se continúa con el envío del mensaje..
+   if(MAYOR_QUE_Recibido)
+   {
+       Reintentos = 0;
+       //Bucle para realizar reintentos
+       do
+       {
+           //Inicializamos buffer de datos
+           for(i=0; i<100; i++) {DatosRecibidos_UART2[i] = '\0';}
+           if(UART2_DatosPorLeer()){UART2_LeerDatos((char *)DatosRecAux, UART2_DatosPorLeer());};
+
+           //Envío de la primera parte del comando
+           UART2_Envia_Cadena(COM_AT_SMS_II);
+           UART2_Envia_Byte(0x1A);
+
+           //Esperamos a recibir todos los datos.. Si pasa un tiempo sin recibir nada,
+           //se entiende que la comunicación finalizó y salimos..
+           Reset_Contador_MSeg();
+           while((Lectura_Contador_MSeg()<4000)&&(!OK_Recibido))
+           {
+               if(UART2_DatosPorLeer())
+               {
+                   Reset_Contador_MSeg();                                             //Reset del contador de tiempo de salida del bucle
+                   for(i=0; i<100; i++) { DatosRecAux[i] = '\0'; }                    //Inicializamos buffer recepción parcial
+                   UART2_LeerDatos((char *)DatosRecAux, UART2_DatosPorLeer());        //Lectura de datos del buffer UART
+                   strcat((char *)DatosRecibidos_UART2, (const char *)DatosRecAux);   //Concatenamos datos recibidos en el buffer
+
+                   //Buscamos en la respuesta recibida si el comando finalizó con éxito buscando "OK"
+                   for(i=0; i<100; i++)
+                   {
+                       if((DatosRecibidos_UART2[i] == 'O')&&(DatosRecibidos_UART2[i+1] == 'K'))
+                       {
+                           OK_Recibido = TRUE;
+                           Resultado = TRUE;
+                           break;
+                       }
+                   }
+               }
+           }
+
+           //Se incrementan los reintentos
+           Reintentos++;
+        }while((OK_Recibido == FALSE)&&(Reintentos < 3));
+    }
+
+   //Final del proceso
+   return Resultado;
 }
 
 //********************************************************************************************************************

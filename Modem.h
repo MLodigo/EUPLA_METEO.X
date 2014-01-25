@@ -55,6 +55,7 @@ BOOL AT_CNUM(void);
 BOOL AT_CONNECTIONSTART(void);
 BOOL AT_CONNECTIONSTOP(void);
 BOOL AT_OTCP(void);
+BOOL AT_CMGS(unsigned char*);
 BOOL Caracter_ETX(void);
 #endif	
 
